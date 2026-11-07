@@ -21,6 +21,7 @@ export default function DocumentationSection({
   selectedAlbumId,
   onSelectAlbum,
   onOpenLightbox,
+  customPhotos = [],
 }) {
   const [selectedCategory, setSelectedCategory] = useState(
     selectedAlbumId || 'all'
@@ -37,8 +38,22 @@ export default function DocumentationSection({
     }
   }, [selectedAlbumId]);
 
+  const mergedAlbums = useMemo(() => {
+    return DOCUMENTATION_ALBUMS.map((album) => {
+      const extra = (customPhotos || []).filter((p) => p.albumId === album.id);
+      return {
+        ...album,
+        photos: [...extra, ...album.photos],
+      };
+    });
+  }, [customPhotos]);
+
+  const mergedPhotos = useMemo(() => {
+    return [...(customPhotos || []), ...ALL_GALLERY_PHOTOS];
+  }, [customPhotos]);
+
   const filteredAlbums = useMemo(() => {
-    return DOCUMENTATION_ALBUMS.filter((album) => {
+    return mergedAlbums.filter((album) => {
       const matchesCat =
         selectedCategory === 'all' || album.id === selectedCategory;
       const q = searchQuery.trim().toLowerCase();
@@ -49,21 +64,21 @@ export default function DocumentationSection({
         album.year.includes(q);
       return matchesCat && matchesQuery;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [mergedAlbums, selectedCategory, searchQuery]);
 
   const filteredPhotos = useMemo(() => {
-    return ALL_GALLERY_PHOTOS.filter((photo) => {
+    return mergedPhotos.filter((photo) => {
       const matchesCat =
         selectedCategory === 'all' || photo.albumId === selectedCategory;
       const q = searchQuery.trim().toLowerCase();
       const matchesQuery =
         !q ||
-        photo.albumTitle.toLowerCase().includes(q) ||
-        photo.caption.toLowerCase().includes(q) ||
-        photo.year.includes(q);
+        (photo.albumTitle || '').toLowerCase().includes(q) ||
+        (photo.caption || '').toLowerCase().includes(q) ||
+        (photo.year || '').includes(q);
       return matchesCat && matchesQuery;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [mergedPhotos, selectedCategory, searchQuery]);
 
   useEffect(() => {
     setCinemaIdx(0);

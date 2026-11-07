@@ -1040,7 +1040,7 @@ export default function AdminPortalModal({
                         type="text"
                         value={apiUrlInput}
                         onChange={(e) => setApiUrlInput(e.target.value)}
-                        placeholder="https://ambulu-mengajar-backend.vercel.app/api"
+                        placeholder="https://web-am-backend.vercel.app/api"
                       />
                     </div>
                     <button

@@ -174,6 +174,7 @@ export default function App() {
           selectedAlbumId={selectedAlbumId}
           onSelectAlbum={setSelectedAlbumId}
           onOpenLightbox={setLightboxPhoto}
+          customPhotos={backendState?.customPhotos || []}
         />
         <FaqSection />
         <ContactFooter />

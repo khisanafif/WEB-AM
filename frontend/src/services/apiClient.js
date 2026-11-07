@@ -11,7 +11,7 @@ export function getApiBaseUrl() {
     return customUrl.trim().replace(/\/+$/, '');
   }
   return (
-    import.meta.env.VITE_API_URL || 'https://backend-am-ten.vercel.app/api'
+    import.meta.env.VITE_API_URL || 'https://web-am-backend.vercel.app/api'
   ).replace(/\/+$/, '');
 }
 
