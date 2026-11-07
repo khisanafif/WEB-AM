@@ -24,12 +24,12 @@ export function setCustomApiBaseUrl(url) {
 }
 
 export function getStoredToken() {
-  return localStorage.getItem(STORAGE_TOKEN_KEY) || null;
+  return sessionStorage.getItem(STORAGE_TOKEN_KEY) || null;
 }
 
 export function getStoredAdminUser() {
   try {
-    const raw = localStorage.getItem(STORAGE_USER_KEY);
+    const raw = sessionStorage.getItem(STORAGE_USER_KEY);
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -37,9 +37,16 @@ export function getStoredAdminUser() {
 }
 
 export function clearAdminSession() {
+  sessionStorage.removeItem(STORAGE_TOKEN_KEY);
+  sessionStorage.removeItem(STORAGE_USER_KEY);
+  // Bersihkan sesi lama yang dulu tersimpan permanen
   localStorage.removeItem(STORAGE_TOKEN_KEY);
   localStorage.removeItem(STORAGE_USER_KEY);
 }
+
+// Sesi admin lama (localStorage) dihapus agar panel selalu mulai dalam keadaan belum login
+localStorage.removeItem(STORAGE_TOKEN_KEY);
+localStorage.removeItem(STORAGE_USER_KEY);
 
 function mergeCmsState(loaded) {
   const base = JSON.parse(JSON.stringify(DEFAULT_BACKEND_STATE));
@@ -138,8 +145,8 @@ export async function loginAdmin(username, password) {
     method: 'POST',
     body: JSON.stringify({ username, password }),
   });
-  localStorage.setItem(STORAGE_TOKEN_KEY, res.token);
-  localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(res.user));
+  sessionStorage.setItem(STORAGE_TOKEN_KEY, res.token);
+  sessionStorage.setItem(STORAGE_USER_KEY, JSON.stringify(res.user));
   return {
     success: true,
     mode: 'online',
