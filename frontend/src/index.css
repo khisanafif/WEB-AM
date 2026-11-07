@@ -7000,3 +7000,18 @@ img {
 
 
 
+
+/* Missing component styles */
+.am-bank-top-row{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.55rem}
+.am-bank-badge{display:inline-flex;padding:.2rem .65rem;border-radius:999px;color:#fff;font-family:var(--am-font-head);font-size:.72rem;font-weight:800}
+.am-studio-badge{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .8rem;border-radius:999px;background:var(--am-accent-soft);border:1px solid var(--am-accent-border);color:var(--am-accent);font-family:var(--am-font-head);font-size:.74rem;font-weight:800;margin-bottom:.6rem}
+.am-copy-chip{display:inline-flex;align-items:center;gap:.3rem;padding:.28rem .65rem;border-radius:.5rem;border:1px solid var(--am-accent-border);background:var(--am-accent-soft);color:var(--am-accent);font-size:.72rem;font-weight:700;cursor:pointer}
+.am-copy-chip.is-copied,.am-bank-studio-card.is-copied{background:var(--am-accent);color:#1d1d33;border-color:var(--am-accent)}
+.am-bank-studio-card{cursor:pointer}
+.am-archived-accounts-section{min-width:0}
+.am-wa-confirm-step{margin-top:1.25rem}
+.am-div-launch-code{font-family:var(--am-font-head);font-weight:800}
+.am-dock-indicator{position:absolute;bottom:3px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--am-accent)}
+.am-dock-item{position:relative}
+.am-bank-studio-grid{display:grid}
+
