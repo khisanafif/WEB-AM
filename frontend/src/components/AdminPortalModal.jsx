@@ -43,6 +43,7 @@ import {
   fetchPublicState,
 } from '../services/apiClient';
 import { DOCUMENTATION_ALBUMS } from '../data/ambuluData';
+import { createEmptyDivision } from '../utils/divisionText';
 
 const EMPTY_EVENT_FORM = {
   title: '',
@@ -465,7 +466,7 @@ export default function AdminPortalModal({
               <h3>Login Panel Admin</h3>
               <p>
                 Masuk untuk mengelola seluruh konten website: Profil & Hero,
-                Sejarah & Visi-Misi, 4 Divisi, Kegiatan, Donasi & Rekening,
+                Sejarah & Visi-Misi, Divisi, Kegiatan, Donasi & Rekening,
                 Galeri Dokumentasi, hingga FAQ.
               </p>
 
@@ -553,7 +554,7 @@ export default function AdminPortalModal({
                 onClick={() => setActiveTab('divisions')}
               >
                 <Layers size={14} />
-                <span>3. Empat Divisi</span>
+                <span>3. Divisi</span>
               </button>
               <button
                 type="button"
@@ -961,10 +962,34 @@ export default function AdminPortalModal({
             )}
 
             {/* ==============================================================
-                TAB 3: KELOLA 4 DIVISI ORGANISASI
+                TAB 3: KELOLA DIVISI ORGANISASI (BISA TAMBAH & HAPUS)
                ============================================================== */}
-            {activeTab === 'divisions' && currentEditDiv && (
+            {activeTab === 'divisions' && (
               <div className="am-admin-panel-body">
+                <div className="am-admin-panel-head">
+                  <div>
+                    <h3>Kelola Divisi ({divisionsDraft.length})</h3>
+                    <p>
+                      Tambah divisi baru, lalu isi detailnya. Judul, jumlah
+                      divisi, dan kartu di website otomatis menyesuaikan setelah
+                      disimpan.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="am-btn am-btn-primary am-btn-sm"
+                    onClick={() => {
+                      setDivisionsDraft([
+                        ...divisionsDraft,
+                        createEmptyDivision(),
+                      ]);
+                      setSelectedEditDivIdx(divisionsDraft.length);
+                    }}
+                  >
+                    <Plus size={15} /> Tambah Divisi
+                  </button>
+                </div>
+
                 <div className="am-event-filter-pills">
                   {divisionsDraft.map((d, idx) => (
                     <button
@@ -975,11 +1000,51 @@ export default function AdminPortalModal({
                       }`}
                       onClick={() => setSelectedEditDivIdx(idx)}
                     >
-                      Edit Divisi {d.code}
+                      Edit Divisi {d.code || idx + 1}
                     </button>
                   ))}
                 </div>
 
+                {divisionsDraft.length > 0 && (
+                  <div className="am-admin-form-actions">
+                    <button
+                      type="button"
+                      className="am-btn am-btn-outline am-btn-sm"
+                      onClick={() =>
+                        handleSaveCmsPayload(
+                          { divisions: divisionsDraft },
+                          'Daftar divisi berhasil disimpan!'
+                        )
+                      }
+                      disabled={loading}
+                    >
+                      <Save size={14} /> Simpan Semua Divisi
+                    </button>
+                  </div>
+                )}
+
+                {!currentEditDiv && (
+                  <div className="am-card am-admin-config-form">
+                    <p className="am-channels-sub">
+                      Belum ada divisi. Klik &ldquo;Tambah Divisi&rdquo; untuk
+                      membuat divisi pertama, lalu simpan.
+                    </p>
+                    <button
+                      type="button"
+                      className="am-btn am-btn-primary am-btn-sm"
+                      onClick={() =>
+                        handleSaveCmsPayload(
+                          { divisions: divisionsDraft },
+                          'Daftar divisi berhasil disimpan!'
+                        )
+                      }
+                    >
+                      <Save size={14} /> Simpan
+                    </button>
+                  </div>
+                )}
+
+                {currentEditDiv && (
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -991,6 +1056,39 @@ export default function AdminPortalModal({
                   className="am-card am-admin-config-form"
                 >
                   <h4>Edit Detail {currentEditDiv.exactTitle}</h4>
+                  <div className="am-form-row">
+                    <div className="am-form-group">
+                      <label>Singkatan / Kode Divisi</label>
+                      <input
+                        type="text"
+                        value={currentEditDiv.code || ''}
+                        onChange={(e) => {
+                          const next = [...divisionsDraft];
+                          next[selectedEditDivIdx] = {
+                            ...currentEditDiv,
+                            code: e.target.value.toUpperCase(),
+                          };
+                          setDivisionsDraft(next);
+                        }}
+                        placeholder="Contoh: HRD"
+                      />
+                    </div>
+                    <div className="am-form-group">
+                      <label>Warna Aksen</label>
+                      <input
+                        type="color"
+                        value={currentEditDiv.accentColor || '#FF8CA8'}
+                        onChange={(e) => {
+                          const next = [...divisionsDraft];
+                          next[selectedEditDivIdx] = {
+                            ...currentEditDiv,
+                            accentColor: e.target.value,
+                          };
+                          setDivisionsDraft(next);
+                        }}
+                      />
+                    </div>
+                  </div>
                   <div className="am-form-row">
                     <div className="am-form-group">
                       <label>Judul Tampilan Divisi</label>
@@ -1098,14 +1196,61 @@ export default function AdminPortalModal({
                     />
                   </div>
 
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="am-btn am-btn-primary am-btn-sm"
-                  >
-                    <Save size={15} /> Simpan Perubahan Divisi
-                  </button>
+                  <div className="am-form-group">
+                    <label>
+                      Kompetensi / Skill yang Dikembangkan (Pisahkan per baris)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={(currentEditDiv.skills || []).join('\n')}
+                      onChange={(e) => {
+                        const next = [...divisionsDraft];
+                        next[selectedEditDivIdx] = {
+                          ...currentEditDiv,
+                          skills: e.target.value
+                            .split('\n')
+                            .map((s) => s.trim())
+                            .filter(Boolean),
+                        };
+                        setDivisionsDraft(next);
+                      }}
+                    />
+                  </div>
+
+                  <div className="am-admin-form-actions">
+                    <button
+                      type="button"
+                      className="am-btn am-btn-danger am-btn-sm"
+                      onClick={() => {
+                        if (
+                          !window.confirm(
+                            `Hapus divisi "${
+                              currentEditDiv.exactTitle || currentEditDiv.code
+                            }"? Perubahan berlaku setelah disimpan.`
+                          )
+                        )
+                          return;
+                        const next = divisionsDraft.filter(
+                          (_, i) => i !== selectedEditDivIdx
+                        );
+                        setDivisionsDraft(next);
+                        setSelectedEditDivIdx(
+                          Math.max(0, selectedEditDivIdx - 1)
+                        );
+                      }}
+                    >
+                      <Trash2 size={14} /> Hapus Divisi
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="am-btn am-btn-primary am-btn-sm"
+                    >
+                      <Save size={15} /> Simpan Perubahan Divisi
+                    </button>
+                  </div>
                 </form>
+                )}
               </div>
             )}
 

@@ -25,6 +25,7 @@ export default function CommandPalette({
   onClose,
   onSelectDivision,
   onSelectAlbum,
+  divisions: divisionsProp,
   onOpenAdmin,
   isDonationOpen,
 }) {
@@ -61,13 +62,13 @@ export default function CommandPalette({
     });
   };
 
-  const filteredDivisions = DIVISIONS.filter(
-    (d) =>
-      !q ||
-      d.exactTitle.toLowerCase().includes(q) ||
-      d.description.toLowerCase().includes(q) ||
-      d.code.toLowerCase().includes(q)
-  );
+  const allDivisions = Array.isArray(divisionsProp) ? divisionsProp : DIVISIONS;
+  const filteredDivisions = allDivisions.filter((d) => {
+    const hay = `${d.exactTitle || ''} ${d.description || ''} ${
+      d.code || ''
+    }`.toLowerCase();
+    return !q || hay.includes(q);
+  });
 
   const filteredAlbums = DOCUMENTATION_ALBUMS.filter(
     (a) =>
@@ -91,7 +92,7 @@ export default function CommandPalette({
           <input
             type="text"
             autoFocus
-            placeholder="Ketik divisi (HRD, AML, AMF, KOMINFO), album dokumentasi, atau rekening donasi..."
+            placeholder="Ketik nama divisi, album dokumentasi, atau rekening donasi..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="am-cmd-input"
@@ -123,7 +124,7 @@ export default function CommandPalette({
                 type="button"
                 onClick={() => jumpTo('#divisiambulumengajar')}
               >
-                Studio 4 Divisi & Kuis Relawan
+                Studio Divisi & Kuis Relawan
               </button>
               <button
                 type="button"
@@ -173,7 +174,7 @@ export default function CommandPalette({
                   >
                     <div>
                       <strong>{div.exactTitle}</strong>
-                      <span>{div.carrdPoints.join(' • ')}</span>
+                      <span>{(div.carrdPoints || []).join(' • ')}</span>
                     </div>
                     <span className="am-cmd-badge">{div.code}</span>
                   </button>

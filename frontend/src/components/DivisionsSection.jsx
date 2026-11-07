@@ -11,6 +11,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { DIVISIONS, ALL_GALLERY_PHOTOS } from '../data/ambuluData';
+import { divisionCountWord, divisionCodesText } from '../utils/divisionText';
 
 const DIV_ICONS = {
   hrd: Users,
@@ -73,10 +74,17 @@ export default function DivisionsSection({
   selectedDivId,
   onOpenLightbox,
 }) {
-  const divisions =
-    backendState?.divisions && backendState.divisions.length > 0
-      ? backendState.divisions
-      : DIVISIONS;
+  const divisions = Array.isArray(backendState?.divisions)
+    ? backendState.divisions
+    : DIVISIONS;
+
+  // Kuis hanya memakai divisi yang masih ada (divisi baru tidak punya soal kuis)
+  const questions = MATCHER_QUESTIONS.map((qItem) => ({
+    ...qItem,
+    options: qItem.options.filter((o) =>
+      divisions.some((d) => d.id === o.div)
+    ),
+  })).filter((qItem) => qItem.options.length > 0);
 
   const [highlightedId, setHighlightedId] = useState(null);
   const [quizStep, setQuizStep] = useState(0);
@@ -97,7 +105,7 @@ export default function DivisionsSection({
 
   const handleAnswerQuiz = (divCode) => {
     const next = [...quizAnswers, divCode];
-    if (quizStep + 1 < MATCHER_QUESTIONS.length) {
+    if (quizStep + 1 < questions.length) {
       setQuizAnswers(next);
       setQuizStep(quizStep + 1);
     } else {
@@ -136,22 +144,34 @@ export default function DivisionsSection({
               <Sparkles size={13} /> Struktur Organisasi
             </span>
             <h2 className="am-section-title" id="divisi-heading">
-              Empat Divisi <span>Ambulu Mengajar</span>
+              {divisionCountWord(divisions.length)} Divisi{' '}
+              <span>Ambulu Mengajar</span>
             </h2>
           </div>
           <p className="am-section-desc">
-            Empat pilar divisi fungsional yang bersinergi menjalankan pengembangan
-            relawan, kegiatan belajar mengajar, penyelenggaraan beasiswa & bakti
-            sosial, serta publikasi kreatif.
+            {divisionCountWord(divisions.length)} pilar divisi fungsional
+            {divisionCodesText(divisions)
+              ? ` (${divisionCodesText(divisions)})`
+              : ''}{' '}
+            yang bersinergi menjalankan program, kegiatan, dan pengembangan
+            relawan Ambulu Mengajar.
           </p>
         </div>
 
-        {/* DIRECTLY OPEN UNIFIED CARDS FOR ALL 4 DIVISIONS (MOBILE & DESKTOP FRIENDLY) */}
+        {/* DIRECTLY OPEN UNIFIED CARDS FOR ALL DIVISIONS (MOBILE & DESKTOP FRIENDLY) */}
+        {divisions.length === 0 && (
+          <div className="am-card am-empty-state">
+            <h3>Belum ada divisi</h3>
+            <p>Data divisi akan tampil di sini setelah ditambahkan.</p>
+          </div>
+        )}
         <div className="am-divisions-open-grid">
           {divisions.map((div, idx) => {
             const IconComp = DIV_ICONS[div.id] || Users;
-            const relatedPhotos =
-              DIV_GALLERY_MAP[div.id] || ALL_GALLERY_PHOTOS.slice(0, 2);
+            const relatedPhotos = DIV_GALLERY_MAP[div.id] || [];
+            const points = div.carrdPoints || [];
+            const programs = div.programs || [];
+            const skills = div.skills || [];
             const isHighlighted = highlightedId === div.id;
 
             return (
@@ -174,7 +194,7 @@ export default function DivisionsSection({
                         borderColor: `${div.accentColor || '#FF8CA8'}55`,
                       }}
                     >
-                      0{idx + 1} • DIVISI {div.code}
+                      {String(idx + 1).padStart(2, '0')} • DIVISI {div.code}
                     </span>
                     <span className="am-div-ucard-tagline">{div.tagline}</span>
                   </div>
@@ -195,7 +215,9 @@ export default function DivisionsSection({
                     </div>
                   </div>
 
-                  <p className="am-div-ucard-desc">{div.description}</p>
+                  <p className="am-div-ucard-desc">
+                    {div.description || 'Deskripsi divisi belum diisi.'}
+                  </p>
                 </div>
 
                 {/* Fokus & Tanggung Jawab Utama (Directly Open) */}
@@ -204,14 +226,18 @@ export default function DivisionsSection({
                     <CheckCircle2 size={15} />
                     <span>Fokus & Tanggung Jawab Utama</span>
                   </div>
-                  <ul className="am-div-ucard-points">
-                    {(div.carrdPoints || []).map((pt, i) => (
-                      <li key={i}>
-                        <span className="am-carrd-bullet">0{i + 1}</span>
-                        <p>{pt}</p>
-                      </li>
-                    ))}
-                  </ul>
+                  {points.length === 0 ? (
+                    <p className="am-div-empty-note">Belum ada data.</p>
+                  ) : (
+                    <ul className="am-div-ucard-points">
+                      {points.map((pt, i) => (
+                        <li key={i}>
+                          <span className="am-carrd-bullet">0{i + 1}</span>
+                          <p>{pt}</p>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
 
                 {/* Program Kerja Unggulan (Directly Open) */}
@@ -220,8 +246,11 @@ export default function DivisionsSection({
                     <Award size={15} />
                     <span>Program Kerja Unggulan</span>
                   </div>
+                  {programs.length === 0 && (
+                    <p className="am-div-empty-note">Belum ada data.</p>
+                  )}
                   <div className="am-div-ucard-progs">
-                    {(div.programs || []).map((prog, i) => {
+                    {programs.map((prog, i) => {
                       const label =
                         typeof prog === 'string'
                           ? prog
@@ -237,37 +266,46 @@ export default function DivisionsSection({
                 </div>
 
                 {/* Footer Inside Same Card: Skills & Related Photos */}
-                <div className="am-div-ucard-footer">
-                  <div className="am-skill-tags">
-                    {(div.skills || []).map((sk) => (
-                      <span key={sk} className="am-skill-tag">
-                        {sk}
-                      </span>
-                    ))}
-                  </div>
+                {(skills.length > 0 || relatedPhotos.length > 0) && (
+                  <div className="am-div-ucard-footer">
+                    {skills.length > 0 && (
+                      <div className="am-skill-tags">
+                        {skills.map((sk) => (
+                          <span key={sk} className="am-skill-tag">
+                            {sk}
+                          </span>
+                        ))}
+                      </div>
+                    )}
 
-                  <div className="am-div-ucard-thumbs">
-                    {relatedPhotos.map((ph) => (
-                      <button
-                        key={ph.id}
-                        type="button"
-                        className="am-stage-photo-thumb"
-                        onClick={() => onOpenLightbox && onOpenLightbox(ph)}
-                        title={ph.albumTitle}
-                      >
-                        <img src={ph.src} alt={ph.albumTitle} />
-                        <span>Lihat Foto</span>
-                      </button>
-                    ))}
+                    {relatedPhotos.length > 0 && (
+                      <div className="am-div-ucard-thumbs">
+                        {relatedPhotos.map((ph) => (
+                          <button
+                            key={ph.id}
+                            type="button"
+                            className="am-stage-photo-thumb"
+                            onClick={() => onOpenLightbox && onOpenLightbox(ph)}
+                            title={ph.albumTitle}
+                          >
+                            <img src={ph.src} alt={ph.albumTitle} />
+                            <span>Lihat Foto</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                </div>
+                )}
               </article>
             );
           })}
         </div>
 
         {/* INTERACTIVE VOLUNTEER DIVISION MATCHER */}
-        <div className="am-card am-matcher-card">
+        <div
+          className="am-card am-matcher-card"
+          style={questions.length === 0 ? { display: 'none' } : undefined}
+        >
           <div className="am-matcher-header">
             <div>
               <span className="am-pill-badge">
@@ -275,7 +313,7 @@ export default function DivisionsSection({
               </span>
               <h3>Ingin Bergabung? Cek Divisi yang Paling Cocok Untukmu!</h3>
               <p>
-                Jawab 3 pertanyaan singkat berikut untuk melihat rekomendasi
+                Jawab {questions.length} pertanyaan singkat berikut untuk melihat rekomendasi
                 divisi yang paling sesuai dengan minat dan keahlianmu.
               </p>
             </div>
@@ -294,13 +332,13 @@ export default function DivisionsSection({
             <div className="am-matcher-body">
               <div className="am-matcher-progress">
                 <span>
-                  Pertanyaan {quizStep + 1} dari {MATCHER_QUESTIONS.length}
+                  Pertanyaan {quizStep + 1} dari {questions.length}
                 </span>
                 <div className="am-matcher-bar">
                   <div
                     style={{
                       width: `${
-                        ((quizStep + 1) / MATCHER_QUESTIONS.length) * 100
+                        ((quizStep + 1) / questions.length) * 100
                       }%`,
                     }}
                   />
@@ -308,11 +346,11 @@ export default function DivisionsSection({
               </div>
 
               <h4 className="am-matcher-q">
-                {MATCHER_QUESTIONS[quizStep].q}
+                {questions[quizStep].q}
               </h4>
 
               <div className="am-matcher-options-grid">
-                {MATCHER_QUESTIONS[quizStep].options.map((opt, idx) => (
+                {questions[quizStep].options.map((opt, idx) => (
                   <button
                     key={idx}
                     type="button"

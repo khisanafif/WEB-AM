@@ -7025,3 +7025,6 @@ img {
 .am-div-launch-top{align-items:center}
 .am-div-launch-top .am-div-launch-code{font-size:.75rem}
 
+
+.am-div-empty-note{font-size:.84rem;color:var(--am-text-muted);font-style:italic;margin:0}
+

@@ -17,6 +17,7 @@ import {
   ALL_GALLERY_PHOTOS,
   SOCIAL_LINKS,
 } from '../data/ambuluData';
+import { divisionCountWord, divisionCodesText } from '../utils/divisionText';
 
 export default function Hero({
   backendState,
@@ -37,7 +38,7 @@ export default function Hero({
     logoMain: ORG_INFO.logoMain,
   };
 
-  const heroStats = backendState?.heroStats || [
+  const rawHeroStats = backendState?.heroStats || [
     {
       id: 'stat-1',
       value: '2011',
@@ -64,8 +65,25 @@ export default function Hero({
     },
   ];
 
-  const divisions = backendState?.divisions || DIVISIONS;
+  const divisions = Array.isArray(backendState?.divisions)
+    ? backendState.divisions
+    : DIVISIONS;
   const socialLinks = backendState?.socialLinks || SOCIAL_LINKS;
+
+  const divCountWord = divisionCountWord(divisions.length);
+  const divCodes = divisionCodesText(divisions);
+  // Kartu statistik "N Divisi" otomatis mengikuti jumlah divisi
+  const heroStats = rawHeroStats.map((st) =>
+    /^\s*\d+\s+divisi\s*$/i.test(String(st.value))
+      ? {
+          ...st,
+          value: `${divisions.length} Divisi`,
+          detail: divCodes
+            ? `Sinergi divisi ${divCodes} yang terstruktur.`
+            : st.detail,
+        }
+      : st
+  );
 
   const [activeReelIdx, setActiveReelIdx] = useState(0);
   const [reelPlaying, setReelPlaying] = useState(true);
@@ -152,7 +170,7 @@ export default function Hero({
 
             <div className="am-bento-cta-row">
               <a href="#divisiambulumengajar" className="am-btn am-btn-primary">
-                <GraduationCap size={17} /> Lihat 4 Divisi Utama
+                <GraduationCap size={17} /> Lihat {divisions.length} Divisi Utama
               </a>
               <a href="#eventambulumengajar" className="am-btn am-btn-secondary">
                 <HeartHandshake size={17} /> Program & Kegiatan
@@ -260,7 +278,7 @@ export default function Hero({
           <div className="am-bento-tile am-tile-div-launcher">
             <div className="am-tile-header-mini">
               <span>
-                <Layers size={13} /> 4 DIVISI FUNGSIONAL
+                <Layers size={13} /> {divCountWord.toUpperCase()} DIVISI FUNGSIONAL
               </span>
               <small>Lompat ke divisi</small>
             </div>
@@ -278,12 +296,12 @@ export default function Hero({
                       className="am-div-launch-code"
                       style={{ color: div.accentColor }}
                     >
-                      0{idx + 1} • {div.code}
+                      {String(idx + 1).padStart(2, '0')} • {div.code}
                     </span>
                     <ArrowUpRight size={14} />
                   </div>
-                  <strong>{div.fullName}</strong>
-                  <span>{div.tagline}</span>
+                  <strong>{div.fullName || div.exactTitle}</strong>
+                  <span>{div.tagline || 'Belum ada deskripsi singkat'}</span>
                 </button>
               ))}
             </div>

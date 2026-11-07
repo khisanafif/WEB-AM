@@ -189,6 +189,7 @@ export default function App() {
         onClose={() => setCmdOpen(false)}
         onSelectDivision={setSelectedDivId}
         onSelectAlbum={setSelectedAlbumId}
+        divisions={backendState?.divisions}
         onOpenAdmin={() => setAdminOpen(true)}
         isDonationOpen={Boolean(backendState?.donationConfig?.isOpen)}
       />
