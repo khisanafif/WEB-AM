@@ -7015,3 +7015,13 @@ img {
 .am-dock-item{position:relative}
 .am-bank-studio-grid{display:grid}
 
+
+/* Fix: Division launcher overflow */
+.am-tile-stats,.am-tile-div-launcher,.am-tile-socials-hub{min-width:0}
+.am-div-launcher-grid{grid-template-columns:minmax(0,1fr);gap:.65rem}
+.am-div-launch-card{width:100%;min-width:0;font-family:inherit;display:flex;flex-direction:column;gap:.2rem;padding:.85rem 1rem}
+.am-div-launch-card strong{font-family:var(--am-font-head);font-size:.92rem;line-height:1.3;white-space:normal}
+.am-div-launch-card span{white-space:normal;overflow:visible;text-overflow:clip;font-family:var(--am-font-body);font-size:.76rem;line-height:1.4}
+.am-div-launch-top{align-items:center}
+.am-div-launch-top .am-div-launch-code{font-size:.75rem}
+
