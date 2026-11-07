@@ -366,6 +366,51 @@ export async function deleteDonationLogApi(donationId) {
   }
 }
 
+export async function createGalleryPhotoApi(photoPayload) {
+  try {
+    const res = await requestApi('/galleries', {
+      method: 'POST',
+      body: JSON.stringify(photoPayload),
+    });
+    if (res.state) saveLocalFallbackState(res.state);
+    return { state: res.state, mode: 'online' };
+  } catch {
+    const current = getLocalFallbackState();
+    if (!Array.isArray(current.customPhotos)) current.customPhotos = [];
+    current.customPhotos.unshift({
+      id: `custom-photo-${Date.now()}`,
+      src: photoPayload.src || 'assets/images/gallery01/4a1c84c9.jpg',
+      title: photoPayload.title || 'Dokumentasi Kegiatan Ambulu Mengajar',
+      albumTitle:
+        photoPayload.albumTitle ||
+        photoPayload.title ||
+        'Dokumentasi Terbaru',
+      caption: photoPayload.caption || '',
+      year: photoPayload.year || new Date().getFullYear().toString(),
+      division: photoPayload.division || 'Divisi AMF',
+      categoryBadge: photoPayload.categoryBadge || 'Dokumentasi Kegiatan',
+      albumId: photoPayload.albumId || 'gallery05',
+    });
+    return { state: saveLocalFallbackState(current), mode: 'fallback' };
+  }
+}
+
+export async function deleteGalleryPhotoApi(photoId) {
+  try {
+    const res = await requestApi(`/galleries/${photoId}`, {
+      method: 'DELETE',
+    });
+    if (res.state) saveLocalFallbackState(res.state);
+    return { state: res.state, mode: 'online' };
+  } catch {
+    const current = getLocalFallbackState();
+    current.customPhotos = (current.customPhotos || []).filter(
+      (p) => p.id !== photoId
+    );
+    return { state: saveLocalFallbackState(current), mode: 'fallback' };
+  }
+}
+
 export async function resetBackendDatabaseApi() {
   try {
     const res = await requestApi('/admin/reset', { method: 'POST' });
