@@ -72,7 +72,7 @@ export default function AdminPortalModal({
   onStateChange,
   onBackendStatusChange,
 }) {
-  const [username, setUsername] = useState('admin');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -176,6 +176,7 @@ export default function AdminPortalModal({
   const handleLogout = () => {
     clearAdminSession();
     onAdminAuthChange(null);
+    setUsername('');
     setPassword('');
     showToast('Anda telah keluar dari sesi Admin.');
   };
@@ -480,9 +481,10 @@ export default function AdminPortalModal({
                     id="adminUser"
                     type="text"
                     required
+                    autoComplete="username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="admin"
+                    placeholder="Masukkan username admin..."
                   />
                 </div>
 
@@ -492,30 +494,11 @@ export default function AdminPortalModal({
                     id="adminPass"
                     type="password"
                     required
+                    autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Masukkan password admin..."
                   />
-                </div>
-
-                <div className="am-login-demo-box">
-                  <div>
-                    <strong>Akses Pengurus:</strong>
-                    <span>
-                      Username: <code>admin</code> • Password:{' '}
-                      <code>ambulumengajar2026</code>
-                    </span>
-                  </div>
-                  <button
-                    type="button"
-                    className="am-demo-fill-btn"
-                    onClick={() => {
-                      setUsername('admin');
-                      setPassword('ambulumengajar2026');
-                    }}
-                  >
-                    <Sparkles size={13} /> Isi Otomatis
-                  </button>
                 </div>
 
                 <button

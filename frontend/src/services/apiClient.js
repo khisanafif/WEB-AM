@@ -134,47 +134,18 @@ export async function fetchPublicState() {
 }
 
 export async function loginAdmin(username, password) {
-  try {
-    const res = await requestApi('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ username, password }),
-    });
-    localStorage.setItem(STORAGE_TOKEN_KEY, res.token);
-    localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(res.user));
-    return {
-      success: true,
-      mode: 'online',
-      user: res.user,
-      token: res.token,
-    };
-  } catch (err) {
-    // Cek apabila error karena kredensial salah dari server
-    if (err.message && err.message.includes('Username atau password')) {
-      throw err;
-    }
-    // Fallback verifikasi apabila server backend belum berjalan
-    if (
-      String(username).trim().toLowerCase() === 'admin' &&
-      String(password) === 'ambulumengajar2026'
-    ) {
-      const fallbackUser = {
-        username: 'admin',
-        name: 'Administrator Ambulu Mengajar',
-        role: 'admin',
-        division: 'Pengurus Inti & AMF',
-      };
-      const fallbackToken = `local-admin-token-${Date.now()}`;
-      localStorage.setItem(STORAGE_TOKEN_KEY, fallbackToken);
-      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(fallbackUser));
-      return {
-        success: true,
-        mode: 'fallback',
-        user: fallbackUser,
-        token: fallbackToken,
-      };
-    }
-    throw new Error('Username atau password Admin salah.');
-  }
+  const res = await requestApi('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ username, password }),
+  });
+  localStorage.setItem(STORAGE_TOKEN_KEY, res.token);
+  localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(res.user));
+  return {
+    success: true,
+    mode: 'online',
+    user: res.user,
+    token: res.token,
+  };
 }
 
 export async function createEventApi(eventPayload) {
