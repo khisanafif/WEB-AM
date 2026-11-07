@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ArrowUpRight,
   Sparkles,
+  ArrowUpRight,
+  GraduationCap,
+  HeartHandshake,
   MapPin,
+  Layers,
   Play,
   Pause,
-  ZoomIn,
-  Layers,
-  HeartHandshake,
-  Camera,
-  ChevronRight,
+  CheckCircle2,
+  Compass,
 } from 'lucide-react';
 import {
   ORG_INFO,
@@ -18,258 +18,277 @@ import {
   SOCIAL_LINKS,
 } from '../data/ambuluData';
 
-export default function Hero({ onOpenLightbox, onSelectDivision }) {
-  const [slideIdx, setSlideIdx] = useState(3); // Starts with Goes To School 2022
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [activeStatIdx, setActiveStatIdx] = useState(0);
-  const [missionMode, setMissionMode] = useState('carrd');
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (!isPlaying) return;
-    const timer = setInterval(() => {
-      setSlideIdx((prev) => (prev + 1) % ALL_GALLERY_PHOTOS.length);
-    }, 3800);
-    return () => clearInterval(timer);
-  }, [isPlaying]);
-
-  const currentPhoto = ALL_GALLERY_PHOTOS[slideIdx] || ALL_GALLERY_PHOTOS[0];
-
-  const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width - 0.5) * 8;
-    const y = ((e.clientY - rect.top) / rect.height - 0.5) * -8;
-    setTilt({ x, y });
+export default function Hero({
+  backendState,
+  onOpenLightbox,
+  onSelectDivision,
+}) {
+  const orgInfo = backendState?.orgInfo || {
+    name: ORG_INFO.name,
+    tagline: ORG_INFO.tagline,
+    category: ORG_INFO.category,
+    location: ORG_INFO.location,
+    foundedYear: String(ORG_INFO.foundedYear),
+    description: ORG_INFO.exactCarrdDescription,
+    educationFocus:
+      'Memfasilitasi siswa-siswi SMA/SMK/MA sederajat di wilayah Ambulu dengan bimbingan belajar, pengenalan dunia perkuliahan, bedah jurusan, serta motivasi studi lanjut bersama mahasiswa asal Ambulu dari berbagai perguruan tinggi di Indonesia.',
+    socialFocus:
+      'Menggerakkan kepedulian sosial masyarakat melalui penyelenggaraan beasiswa pendidikan tingkat SMA serta aksi bakti sosial kemanusiaan di panti asuhan dan masyarakat sekitar.',
+    logoMain: ORG_INFO.logoMain,
   };
 
-  const handleMouseLeave = () => {
+  const heroStats = backendState?.heroStats || [
+    {
+      id: 'stat-1',
+      value: '2011',
+      label: 'Tahun Inisiasi',
+      detail: 'Lebih dari satu dekade mendampingi pelajar di Kecamatan Ambulu.',
+    },
+    {
+      id: 'stat-2',
+      value: '4 Divisi',
+      label: 'Pilar Organisasi',
+      detail: 'Sinergi divisi HRD, AML, AMF, dan KOMINFO yang terstruktur.',
+    },
+    {
+      id: 'stat-3',
+      value: '5+ Program',
+      label: 'Agenda Utama',
+      detail: 'Goes To School, Beasiswa SMA, Pembidik Misi, dan Bakti Sosial.',
+    },
+    {
+      id: 'stat-4',
+      value: 'Ambulu',
+      label: 'Pusat Pengabdian',
+      detail: 'Fokus berdampak nyata bagi pelajar & masyarakat Jember Selatan.',
+    },
+  ];
+
+  const divisions = backendState?.divisions || DIVISIONS;
+  const socialLinks = backendState?.socialLinks || SOCIAL_LINKS;
+
+  const [focusMode, setFocusMode] = useState('profil');
+  const [activeReelIdx, setActiveReelIdx] = useState(0);
+  const [reelPlaying, setReelPlaying] = useState(true);
+  const [selectedStatIdx, setSelectedStatIdx] = useState(0);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  const reelPhotos = ALL_GALLERY_PHOTOS.slice(0, 6);
+
+  useEffect(() => {
+    if (!reelPlaying || reelPhotos.length === 0) return;
+    const timer = setInterval(() => {
+      setActiveReelIdx((prev) => (prev + 1) % reelPhotos.length);
+    }, 3800);
+    return () => clearInterval(timer);
+  }, [reelPlaying, reelPhotos.length]);
+
+  const handleCardMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const relX = (e.clientX - rect.left) / rect.width - 0.5;
+    const relY = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({
+      x: Number((relY * -8).toFixed(2)),
+      y: Number((relX * 8).toFixed(2)),
+    });
+  };
+
+  const handleCardMouseLeave = () => {
     setTilt({ x: 0, y: 0 });
   };
 
-  const handleJumpDivision = (divId) => {
+  const currentReelPhoto = reelPhotos[activeReelIdx] || ALL_GALLERY_PHOTOS[0];
+
+  const focusTabs = [
+    {
+      id: 'profil',
+      label: 'Profil Organisasi',
+      badge: 'Dedikasi Pendidikan & Sosial',
+      text: orgInfo.description || ORG_INFO.exactCarrdDescription,
+    },
+    {
+      id: 'pendidikan',
+      label: 'Fokus Pendidikan',
+      badge: 'Pendampingan & Goes To School',
+      text:
+        orgInfo.educationFocus ||
+        'Memfasilitasi siswa-siswi SMA/SMK/MA sederajat di wilayah Ambulu dengan bimbingan belajar, pengenalan dunia perkuliahan, bedah jurusan, serta motivasi studi lanjut.',
+    },
+    {
+      id: 'sosial',
+      label: 'Beasiswa & Sosial',
+      badge: 'Beasiswa SMA & Bakti Sosial',
+      text:
+        orgInfo.socialFocus ||
+        'Menggerakkan kepedulian sosial masyarakat melalui penyelenggaraan beasiswa pendidikan tingkat SMA serta aksi bakti sosial kemanusiaan di panti asuhan dan masyarakat sekitar.',
+    },
+  ];
+
+  const activeFocus =
+    focusTabs.find((f) => f.id === focusMode) || focusTabs[0];
+
+  const jumpToDivision = (divId) => {
     if (onSelectDivision) onSelectDivision(divId);
     const el = document.getElementById('divisiambulumengajar');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section className="am-bento-hero-section" id="home">
-      <div className="am-hero-bg-orb am-orb-1" />
-      <div className="am-hero-bg-orb am-orb-2" />
-
+    <section className="am-hero-bento-section" id="home">
       <div className="am-container">
         <div className="am-bento-grid">
-          {/* ================================================================
-              TILE 1: MAIN EDITORIAL & INTERACTIVE MISSION TILE (7 Cols)
-              ================================================================ */}
+          {/* TILE 1: MAIN EDITORIAL SHOWCASE */}
           <div className="am-bento-tile am-tile-editorial">
             <div className="am-tile-top-bar">
-              <div className="am-eyebrow-pill">
-                <span className="am-pulse-dot" />
-                <span>{ORG_INFO.category}</span>
-              </div>
-              <span className="am-loc-tag">
-                <MapPin size={13} /> Kec. Ambulu, Kab. Jember
+              <span className="am-pill-badge">
+                <Sparkles size={13} /> {orgInfo.category}
+              </span>
+              <span className="am-location-chip">
+                <MapPin size={13} /> {orgInfo.location}
               </span>
             </div>
 
             <h1 className="am-bento-hero-title">
-              Gerakan Pemuda & Pendidikan{' '}
-              <span className="am-text-gradient">{ORG_INFO.name}</span>
+              Membangun Mimpi Pelajar <span>Ambulu</span> Menuju Pendidikan
+              Tinggi.
             </h1>
 
-            {/* Interactive Mission Mode Switcher */}
-            <div className="am-mission-interactive-box">
-              <div className="am-mission-tabs">
-                <button
-                  type="button"
-                  className={missionMode === 'carrd' ? 'is-active' : ''}
-                  onClick={() => setMissionMode('carrd')}
-                >
-                  <Sparkles size={13} /> Teks Resmi Carrd
-                </button>
-                <button
-                  type="button"
-                  className={missionMode === 'edukasi' ? 'is-active' : ''}
-                  onClick={() => setMissionMode('edukasi')}
-                >
-                  Fokus Pendidikan
-                </button>
-                <button
-                  type="button"
-                  className={missionMode === 'sosial' ? 'is-active' : ''}
-                  onClick={() => setMissionMode('sosial')}
-                >
-                  Fokus Beasiswa & Sosial
-                </button>
+            <div className="am-focus-switcher">
+              <div
+                className="am-focus-tabs"
+                role="tablist"
+                aria-label="Fokus Gerakan Ambulu Mengajar"
+              >
+                {focusTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={focusMode === tab.id}
+                    className={`am-focus-tab ${
+                      focusMode === tab.id ? 'is-active' : ''
+                    }`}
+                    onClick={() => setFocusMode(tab.id)}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
               </div>
 
-              {missionMode === 'carrd' && (
-                <p id="text04" className="am-carrd-statement-text">
-                  <strong>Ambulu Mengajar</strong> adalah sebuah organisasi
-                  non-profit yang bergerak di bidang pendidikan dan sosial.
-                  Tekad Ambulu Mengajar untuk membantu pelajar di Ambulu dan
-                  sekitarnya agar dapat melanjutkan pendidikan setinggi mungkin
-                  demi kemajuan bangsa sebagai bentuk pengabdian diri pada tanah
-                  air Indonesia.
-                </p>
-              )}
-
-              {missionMode === 'edukasi' && (
-                <p className="am-carrd-statement-text">
-                  Melalui <strong>Divisi AML (Ambulu Mengajar Learning)</strong>
-                  , kami menyelenggarakan kegiatan belajar mengajar, bimbingan
-                  masuk PTN, dan <em>Ambulu Mengajar Goes To School</em> ke
-                  sekolah-sekolah SMA/SMK/MA di Kecamatan Ambulu agar pelajar
-                  memiliki motivasi dan kesiapan menembus perguruan tinggi.
-                </p>
-              )}
-
-              {missionMode === 'sosial' && (
-                <p className="am-carrd-statement-text">
-                  Melalui{' '}
-                  <strong>Divisi AMF (Ambulu Mengajar Foundation)</strong>, kami
-                  membawahi penyelenggaraan beasiswa tingkat SMA, memfasilitasi
-                  informasi beasiswa pelajar (
-                  <em>AMF X Pembidik Misi & Pembidik Mimpi</em>), serta
-                  menggelar aksi <em>AMF Baksos</em> dan donasi panti asuhan.
-                </p>
-              )}
+              <div className="am-focus-card" id="text04">
+                <div className="am-focus-card-meta">
+                  <CheckCircle2 size={14} />
+                  <span>{activeFocus.badge}</span>
+                </div>
+                <p>{activeFocus.text}</p>
+              </div>
             </div>
 
             <div className="am-bento-cta-row">
               <a href="#divisiambulumengajar" className="am-btn am-btn-primary">
-                <Layers size={17} /> Buka Studio 4 Divisi
+                <GraduationCap size={17} /> Jelajahi 4 Divisi Utama
               </a>
-              <a
-                href="#eventambulumengajar"
-                className="am-btn am-btn-secondary"
-              >
-                <HeartHandshake size={17} /> Simulator Donasi KURMA
+              <a href="#eventambulumengajar" className="am-btn am-btn-secondary">
+                <HeartHandshake size={17} /> Lihat Program & Kegiatan
               </a>
-              <a
-                href="#dokumentasiambulumengajar"
-                className="am-btn am-btn-outline"
-              >
-                <Camera size={17} /> Cinema 13 Foto
+              <a href="#tentang" className="am-btn am-btn-outline">
+                <Compass size={16} /> Jejak Sejarah
               </a>
             </div>
           </div>
 
-          {/* ================================================================
-              TILE 2: 3D-TILT IDENTITY & LIVE REEL STAGE (5 Cols)
-              ================================================================ */}
-          <div
-            className="am-bento-tile am-tile-stage"
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
-            style={{
-              transform: `perspective(1000px) rotateX(${tilt.y}deg) rotateY(${tilt.x}deg)`,
-            }}
-          >
-            <div className="am-stage-identity-header">
-              <div className="am-logo-ring" id="image01">
-                <img
-                  src={ORG_INFO.logoMain}
-                  alt="Logo Resmi Ambulu Mengajar"
-                />
-              </div>
-              <div className="am-stage-identity-meta">
-                <span className="am-showcase-tag">
-                  Official Identity • Carrd Verified
-                </span>
-                <h2 id="text01" className="am-showcase-title">
-                  {ORG_INFO.name}
-                </h2>
-                <p className="am-showcase-sub">{ORG_INFO.tagline}</p>
+          {/* TILE 2: 3D-TILT IDENTITY CARD + LIVE PHOTO REEL */}
+          <div className="am-bento-tile am-tile-stage">
+            <div
+              className="am-identity-3d-card"
+              onMouseMove={handleCardMouseMove}
+              onMouseLeave={handleCardMouseLeave}
+              style={{
+                transform: `perspective(900px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+              }}
+            >
+              <div className="am-id-card-header">
+                <div id="image01" className="am-id-logo-ring">
+                  <img
+                    src={orgInfo.logoMain || ORG_INFO.logoMain}
+                    alt={`Logo ${orgInfo.name}`}
+                  />
+                </div>
+                <div>
+                  <span className="am-id-eyebrow">IDENTITAS ORGANISASI</span>
+                  <h2 id="text01" className="am-id-title">
+                    {orgInfo.name}
+                  </h2>
+                  <p className="am-id-sub">{orgInfo.tagline}</p>
+                </div>
               </div>
             </div>
 
-            {/* Interactive Live Reel Player */}
             <div className="am-live-reel-box">
               <div
-                className="am-reel-viewport"
-                onClick={() => onOpenLightbox(currentPhoto)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) =>
-                  e.key === 'Enter' && onOpenLightbox(currentPhoto)
+                className="am-reel-frame"
+                onClick={() =>
+                  onOpenLightbox && onOpenLightbox(currentReelPhoto)
                 }
               >
                 <img
-                  src={currentPhoto.src}
-                  alt={currentPhoto.caption}
+                  src={currentReelPhoto.src}
+                  alt={currentReelPhoto.albumTitle}
                   className="am-reel-img"
                 />
-                <div className="am-reel-top-chips">
-                  <span className="am-reel-counter">
-                    Foto {slideIdx + 1} / {ALL_GALLERY_PHOTOS.length}
+                <div className="am-reel-overlay">
+                  <span className="am-reel-tag">
+                    {currentReelPhoto.division} • {currentReelPhoto.year}
                   </span>
-                  <span className="am-reel-zoom-pill">
-                    <ZoomIn size={13} /> Perbesar
-                  </span>
-                </div>
-                <div className="am-reel-bottom-bar">
-                  <span className="am-reel-album-tag">
-                    {currentPhoto.albumTitle} ({currentPhoto.year})
-                  </span>
-                  <p className="am-reel-caption">{currentPhoto.caption}</p>
+                  <strong>{currentReelPhoto.albumTitle}</strong>
+                  <p>{currentReelPhoto.caption}</p>
                 </div>
               </div>
 
-              <div className="am-reel-scrubber">
+              <div className="am-reel-controls">
                 <button
                   type="button"
                   className="am-reel-play-btn"
-                  onClick={() => setIsPlaying((p) => !p)}
-                  title={isPlaying ? 'Jeda Slideshow' : 'Putar Slideshow'}
+                  onClick={() => setReelPlaying((p) => !p)}
+                  aria-label={reelPlaying ? 'Jeda' : 'Putar'}
                 >
-                  {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+                  {reelPlaying ? <Pause size={13} /> : <Play size={13} />}
+                  <span>{reelPlaying ? 'Auto-Reel' : 'Dijeda'}</span>
                 </button>
-                <div className="am-reel-thumbs">
-                  {ALL_GALLERY_PHOTOS.slice(0, 7).map((p, idx) => (
+
+                <div className="am-reel-dots">
+                  {reelPhotos.map((p, idx) => (
                     <button
                       key={p.id}
                       type="button"
-                      className={`am-reel-thumb-dot ${
-                        idx === slideIdx ? 'is-active' : ''
+                      className={`am-reel-dot ${
+                        idx === activeReelIdx ? 'is-active' : ''
                       }`}
-                      onClick={() => setSlideIdx(idx)}
-                      aria-label={`Pilih foto ${idx + 1}`}
+                      onClick={() => setActiveReelIdx(idx)}
+                      aria-label={`Slide ${idx + 1}`}
                     />
                   ))}
                 </div>
-                <button
-                  type="button"
-                  className="am-reel-next-text"
-                  onClick={() =>
-                    setSlideIdx((prev) => (prev + 1) % ALL_GALLERY_PHOTOS.length)
-                  }
-                >
-                   Foto Berikutnya <ChevronRight size={14} />
-                </button>
               </div>
             </div>
           </div>
 
-          {/* ================================================================
-              TILE 3: INTERACTIVE IMPACT INSPECTOR TILE (4 Cols)
-              ================================================================ */}
+          {/* TILE 3: INTERACTIVE IMPACT METRIC INSPECTOR */}
           <div className="am-bento-tile am-tile-stats">
-            <div className="am-tile-label-row">
-              <span>Indikator Dampak Organisasi</span>
-              <span className="am-hint-tag">Klik angka untuk detail</span>
+            <div className="am-tile-header-mini">
+              <span>PROFIL & SKALA GERAKAN</span>
+              <small>Pilih metrik untuk detail</small>
             </div>
 
-            <div className="am-interactive-stats-grid">
-              {ORG_INFO.stats.map((st, idx) => (
+            <div className="am-stats-interactive-grid">
+              {heroStats.map((st, idx) => (
                 <button
-                  key={idx}
+                  key={st.id || idx}
                   type="button"
-                  className={`am-stat-select-btn ${
-                    activeStatIdx === idx ? 'is-active' : ''
+                  className={`am-stat-pill-btn ${
+                    selectedStatIdx === idx ? 'is-selected' : ''
                   }`}
-                  onClick={() => setActiveStatIdx(idx)}
+                  onClick={() => setSelectedStatIdx(idx)}
                 >
                   <strong>{st.value}</strong>
                   <span>{st.label}</span>
@@ -277,70 +296,74 @@ export default function Hero({ onOpenLightbox, onSelectDivision }) {
               ))}
             </div>
 
-            <div className="am-stat-detail-callout">
-              <strong>{ORG_INFO.stats[activeStatIdx].label}:</strong>{' '}
-              {ORG_INFO.stats[activeStatIdx].sub}
+            <div className="am-stat-inspector-callout">
+              <p>
+                {heroStats[selectedStatIdx]?.detail ||
+                  heroStats[0]?.detail ||
+                  ''}
+              </p>
             </div>
           </div>
 
-          {/* ================================================================
-              TILE 4: INTERACTIVE 4-DIVISION QUICK LAUNCHER (4 Cols)
-              ================================================================ */}
+          {/* TILE 4: 4 DIVISIONS INTERACTIVE QUICK LAUNCHER */}
           <div className="am-bento-tile am-tile-div-launcher">
-            <div className="am-tile-label-row">
-              <span>4 Divisi Inti Ambulu Mengajar</span>
-              <a href="#divisiambulumengajar">Studio Penuh →</a>
+            <div className="am-tile-header-mini">
+              <span>
+                <Layers size={13} /> 4 DIVISI FUNGSIONAL
+              </span>
+              <small>Buka detail divisi</small>
             </div>
 
             <div className="am-div-launcher-grid">
-              {DIVISIONS.map((div) => (
+              {divisions.map((div, idx) => (
                 <button
                   key={div.id}
                   type="button"
                   className="am-div-launch-card"
-                  onClick={() => handleJumpDivision(div.id)}
+                  onClick={() => jumpToDivision(div.id)}
                 >
                   <div className="am-div-launch-top">
-                    <span className="am-div-launch-num">{div.number}</span>
-                    <ArrowUpRight size={15} />
+                    <span
+                      className="am-div-launch-code"
+                      style={{ color: div.accentColor }}
+                    >
+                      0{idx + 1} • {div.code}
+                    </span>
+                    <ArrowUpRight size={14} />
                   </div>
-                  <strong>Divisi {div.code}</strong>
-                  <span>{div.fullName}</span>
+                  <strong>{div.fullName}</strong>
+                  <span>{div.tagline}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* ================================================================
-              TILE 5: OFFICIAL SOCIALS & LINKTREE HUB TILE (4 Cols)
-              ================================================================ */}
+          {/* TILE 5: OFFICIAL CHANNELS HUB */}
           <div className="am-bento-tile am-tile-socials-hub">
-            <div className="am-tile-label-row">
-              <span>Ekosistem Digital Resmi</span>
-              <span>4 Kanal Aktif</span>
+            <div className="am-tile-header-mini">
+              <span>JEJARING & KANAL RESMI</span>
+              <small>Terhubung langsung</small>
             </div>
 
-            <div className="am-bento-socials-list">
-              {SOCIAL_LINKS.map((soc) => (
+            <div className="am-social-bento-pills">
+              {socialLinks.map((soc) => (
                 <a
                   key={soc.id}
                   href={soc.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="am-bento-social-row"
+                  className="am-social-bento-item"
                 >
-                  <div className="am-bento-soc-left">
-                    <div className="am-bento-soc-icon">
-                      <svg className="am-carrd-svg-icon">
-                        <use xlinkHref={`#${soc.iconId}`} />
-                      </svg>
-                    </div>
-                    <div>
-                      <strong>{soc.name}</strong>
-                      <span>{soc.handle}</span>
-                    </div>
+                  <div className="am-social-bento-icon">
+                    <svg>
+                      <use xlinkHref={`#${soc.iconId || 'icon-b0b'}`} />
+                    </svg>
                   </div>
-                  <ArrowUpRight size={16} className="am-bento-soc-arrow" />
+                  <div className="am-social-bento-info">
+                    <strong>{soc.name}</strong>
+                    <span>{soc.handle}</span>
+                  </div>
+                  <ArrowUpRight size={14} className="am-social-bento-arrow" />
                 </a>
               ))}
             </div>

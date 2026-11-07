@@ -113,18 +113,19 @@ export default function DocumentationSection({
   return (
     <section className="am-section" id="dokumentasiambulumengajar">
       <div className="am-container">
-        <div className="am-section-header">
-          <span className="am-section-eyebrow">
-            <Film size={13} /> Interactive Cinema & Portfolio
-          </span>
-          <h2 id="text08" className="am-section-title">
-            CINEMA & <span>DOKUMENTASI</span> RESMI
-          </h2>
+        <div className="am-section-header am-header-split">
+          <div>
+            <span className="am-section-eyebrow">
+              <Film size={13} /> Galeri & Portofolio Kegiatan
+            </span>
+            <h2 id="text08" className="am-section-title">
+              Galeri <span>Dokumentasi</span> Kegiatan
+            </h2>
+          </div>
           <p className="am-section-desc">
-            Nikmati 13 dokumentasi resmi dari 5 kegiatan utama{' '}
-            <strong>Ambulu Mengajar</strong> dalam 3 mode tampilan interaktif:{' '}
-            <em>Mode Cinema Spotlight</em>, <em>Mode 5 Album Carrd</em>, dan{' '}
-            <em>Mode Bento Masonry</em>.
+            Jejak dokumentasi kegiatan pendidikan, sosialisasi sekolah,
+            pendampingan beasiswa, serta aksi bakti sosial{' '}
+            <strong>Ambulu Mengajar</strong> dalam tiga tampilan interaktif.
           </p>
         </div>
 
@@ -142,9 +143,9 @@ export default function DocumentationSection({
               }`}
               onClick={() => handleCatClick('all')}
             >
-              Semua ({ALL_GALLERY_PHOTOS.length})
+              Semua ({mergedPhotos.length})
             </button>
-            {DOCUMENTATION_ALBUMS.map((alb) => (
+            {mergedAlbums.map((alb) => (
               <button
                 key={alb.id}
                 type="button"
@@ -163,7 +164,7 @@ export default function DocumentationSection({
               <Search size={16} className="am-search-icon" />
               <input
                 type="text"
-                placeholder="Cari kegiatan (Goes To School, Pembidik Misi, Immamul Mutaqien, As Sofyan, 2022)..."
+                placeholder="Cari kegiatan (Goes To School, Pembidik Misi, Immamul Mutaqien, As Sofyan)..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="am-search-input"
@@ -187,7 +188,7 @@ export default function DocumentationSection({
                 }`}
                 onClick={() => setViewMode('albums')}
               >
-                <FolderKanban size={15} /> 5 Album Carrd
+                <FolderKanban size={15} /> Per Album
               </button>
               <button
                 type="button"
@@ -196,7 +197,7 @@ export default function DocumentationSection({
                 }`}
                 onClick={() => setViewMode('grid')}
               >
-                <LayoutGrid size={15} /> Bento Grid
+                <LayoutGrid size={15} /> Semua Foto
               </button>
             </div>
           </div>

@@ -10,13 +10,11 @@ import {
   Gift,
   Coins,
   Shirt,
-  ShieldAlert,
   Archive,
   Clock,
   MapPin,
   Lock,
   Unlock,
-  Settings,
   ExternalLink,
   FileCheck2,
 } from 'lucide-react';
@@ -27,7 +25,7 @@ const DONATION_TYPES = [
     id: 'uang',
     label: 'Donasi Dana Tunai',
     icon: Coins,
-    desc: 'Transfer via BRI, BCA, BNI, atau Dompet Digital resmi',
+    desc: 'Transfer melalui rekening resmi BRI, BCA, BNI, atau Dompet Digital',
   },
   {
     id: 'sembako',
@@ -52,12 +50,12 @@ const NOMINAL_PRESETS = [
 
 const STATUS_META = {
   completed: {
-    label: 'Selesai / Terlaksana',
+    label: 'Telah Terlaksana',
     badgeClass: 'is-completed',
     icon: CheckCircle2,
   },
   upcoming: {
-    label: 'Segera Hadir',
+    label: 'Agenda Berikutnya',
     badgeClass: 'is-upcoming',
     icon: Clock,
   },
@@ -72,8 +70,6 @@ export default function EventsSection({
   backendState,
   onSelectPhoto,
   onOpenLightbox,
-  onOpenAdmin,
-  isAdminLoggedIn,
   onStateChange,
 }) {
   const handlePreviewPhoto = onSelectPhoto || onOpenLightbox || (() => {});
@@ -91,7 +87,6 @@ export default function EventsSection({
   );
   const [copiedId, setCopiedId] = useState(null);
 
-  // Interactive Donation Form State (Active when Admin opens donation)
   const [donationType, setDonationType] = useState('uang');
   const [selectedNominal, setSelectedNominal] = useState(100000);
   const [donorName, setDonorName] = useState('');
@@ -108,7 +103,7 @@ export default function EventsSection({
     events[0];
 
   const handleCopy = (acc) => {
-    navigator.clipboard.writeText(acc.numberClean);
+    navigator.clipboard.writeText(acc.numberClean || acc.rawNumber || acc.number);
     setCopiedId(acc.id || acc.bank);
     setSelectedBank(acc.bank.split(' ')[0]);
     setTimeout(() => setCopiedId(null), 2200);
@@ -121,7 +116,7 @@ export default function EventsSection({
         ? ` sebesar *Rp ${selectedNominal.toLocaleString('id-ID')}* (Tujuan: *${selectedBank}*)`
         : '';
     const nameStr = donorName.trim() ? donorName.trim() : 'Hamba Allah';
-    const msg = `Halo Kak ${cp.name} (Panitia Ambulu Mengajar),\n\nSaya *${nameStr}* ingin mengonfirmasi *${typeObj?.label}*${nominalStr} untuk program *${donationConfig.campaignTitle}*.\n\nTerima kasih!`;
+    const msg = `Halo Kak ${cp.name} (Ambulu Mengajar),\n\nSaya *${nameStr}* ingin mengonfirmasi *${typeObj?.label}*${nominalStr} untuk program *${donationConfig.campaignTitle}*.\n\nTerima kasih!`;
     return `https://wa.me/${cp.phoneClean}?text=${encodeURIComponent(msg)}`;
   };
 
@@ -144,7 +139,7 @@ export default function EventsSection({
         onStateChange(res.state);
       }
     } catch {
-      // ignore error
+      // ignore
     } finally {
       setSubmittingLog(false);
       window.open(waUrl, '_blank', 'noopener,noreferrer');
@@ -157,46 +152,30 @@ export default function EventsSection({
 
   return (
     <section
-      className="am-section am-section-alt"
+      className="am-section"
       id="eventambulumengajar"
       aria-labelledby="event-heading"
     >
       <div className="am-container">
-        {/* SECTION HEADER WITH ADMIN QUICK ACCESS */}
         <div className="am-section-header am-header-split">
           <div>
             <div className="am-event-logo-pill" id="image03">
               <img
                 src="assets/images/image03.png"
-                alt="Badge Resmi Event Ambulu Mengajar"
+                alt="Identitas Program Ambulu Mengajar"
               />
-              <span>Arsip & Status Event Resmi • Terintegrasi Backend</span>
+              <span>Program & Filantropi Sosial</span>
             </div>
             <h2 className="am-section-title" id="event-heading">
-              Event & Status <span>Donasi Sosial</span>
+              Agenda Kegiatan & <span>Penyaluran Sosial</span>
             </h2>
           </div>
 
-          <div className="am-event-header-actions">
-            <p className="am-section-desc">
-              Event <strong>KURMA (Kunjungan Ramadhan)</strong> dan penyaluran
-              donasinya telah <strong>Selesai / Terlaksana</strong>. Pengurus
-              dapat memperbarui status event atau membuka kampanye donasi baru
-              melalui <strong>Panel Admin</strong>.
-            </p>
-            <button
-              type="button"
-              className="am-btn am-btn-outline am-btn-sm am-admin-quick-btn"
-              onClick={onOpenAdmin}
-            >
-              <Settings size={15} />
-              <span>
-                {isAdminLoggedIn
-                  ? 'Buka Dashboard Admin (Aktif)'
-                  : 'Login Admin — Kelola Event & Donasi'}
-              </span>
-            </button>
-          </div>
+          <p className="am-section-desc">
+            Informasi pelaksanaan kegiatan pendidikan, bakti sosial kemanusiaan,
+            serta transparansi penyaluran donasi melalui Ambulu Mengajar
+            Filantropi (AMF).
+          </p>
         </div>
 
         {/* GLOBAL EVENT & DONATION STATUS BANNER */}
@@ -223,17 +202,17 @@ export default function EventsSection({
                   {donationConfig.statusBadgeText ||
                     (donationConfig.isOpen
                       ? 'OPEN DONATION — SEDANG BERLANGSUNG'
-                      : 'DONASI DITUTUP — EVENT TELAH SELESAI')}
+                      : 'PROGRAM DONASI TELAH SELESAI')}
                 </span>
                 <span className="am-status-sub-tag">
-                  Divisi AMF (Ambulu Mengajar Filantropi)
+                  Ambulu Mengajar Filantropi (AMF)
                 </span>
               </div>
               <h3>
                 {donationConfig.isOpen
                   ? donationConfig.campaignTitle
                   : donationConfig.closedNoticeTitle ||
-                    'Event & Donasi KURMA Telah Selesai Dilaksanakan'}
+                    'Penyaluran Donasi Program KURMA Telah Selesai Dilaksanakan'}
               </h3>
               <p>
                 {donationConfig.isOpen
@@ -245,18 +224,10 @@ export default function EventsSection({
 
           <div className="am-status-banner-right">
             <div className="am-status-stat-Mini">
-              <span>Status Penyaluran KURMA</span>
+              <span>Status Realisasi Program</span>
               <strong>100% Tersalurkan</strong>
-              <small>Panti Asuhan Immamul Mutaqin</small>
+              <small>Transparan & Terdokumentasi</small>
             </div>
-            <button
-              type="button"
-              className="am-btn am-btn-secondary am-btn-sm"
-              onClick={onOpenAdmin}
-            >
-              <Settings size={14} />
-              <span>Ubah Status di Admin</span>
-            </button>
           </div>
         </div>
 
@@ -264,10 +235,10 @@ export default function EventsSection({
         <div className="am-event-selector-bar">
           <div className="am-event-filter-pills">
             {[
-              { id: 'all', label: `Semua Program (${events.length})` },
+              { id: 'all', label: `Semua Kegiatan (${events.length})` },
               {
                 id: 'completed',
-                label: `Selesai / Terlaksana (${
+                label: `Telah Terlaksana (${
                   events.filter((e) => e.status === 'completed').length
                 })`,
               },
@@ -279,7 +250,7 @@ export default function EventsSection({
               },
               {
                 id: 'upcoming',
-                label: `Segera Hadir (${
+                label: `Agenda Berikutnya (${
                   events.filter((e) => e.status === 'upcoming').length
                 })`,
               },
@@ -341,7 +312,7 @@ export default function EventsSection({
                   </span>
                   {activeEvent.status === 'completed' && (
                     <span className="am-evt-archive-pill">
-                      <Archive size={13} /> Dokumentasi Arsip Resmi
+                      <Archive size={13} /> Dokumentasi Kegiatan
                     </span>
                   )}
                 </div>
@@ -369,15 +340,14 @@ export default function EventsSection({
                     })
                   }
                 >
-                  Perbesar Poster Event
+                  Perbesar Poster Kegiatan
                 </button>
               </div>
 
-              {/* Event Metadata & Completion Report Box */}
               <div className="am-card am-timer-studio-box" id="timer01">
                 <div className="am-timer-studio-head">
                   <span className="am-timer-label">
-                    <Calendar size={14} /> Detail Pelaksanaan Event
+                    <Calendar size={14} /> Detail Pelaksanaan Kegiatan
                   </span>
                   <span className={`am-evt-inline-tag ${statusInfo.badgeClass}`}>
                     {statusInfo.label}
@@ -387,14 +357,15 @@ export default function EventsSection({
                 <h3 className="am-evt-detail-title">{activeEvent.title}</h3>
                 <div className="am-evt-meta-list">
                   <span>
-                    <Calendar size={14} /> Periode: <strong>{activeEvent.period}</strong>
+                    <Calendar size={14} /> Periode:{' '}
+                    <strong>{activeEvent.period}</strong>
                   </span>
                   <span>
-                    <MapPin size={14} /> Lokasi: <strong>{activeEvent.location}</strong>
+                    <MapPin size={14} /> Lokasi:{' '}
+                    <strong>{activeEvent.location}</strong>
                   </span>
                 </div>
 
-                {/* Completion Report Box */}
                 <div
                   className={`am-evt-report-callout ${
                     activeEvent.status === 'completed'
@@ -406,8 +377,8 @@ export default function EventsSection({
                     <CheckCircle2 size={16} />
                     <strong>
                       {activeEvent.status === 'completed'
-                        ? 'Laporan Penyelesaian Kegiatan & Donasi'
-                        : 'Informasi Status Kegiatan'}
+                        ? 'Ringkasan Pelaksanaan & Penyaluran'
+                        : 'Informasi Kegiatan'}
                     </strong>
                   </div>
                   <p>
@@ -418,7 +389,7 @@ export default function EventsSection({
                 {activeEvent.deliverables &&
                   activeEvent.deliverables.length > 0 && (
                     <div className="am-evt-deliverables">
-                      <h4>Realisasi & Cakupan Program:</h4>
+                      <h4>Cakupan & Realisasi Program:</h4>
                       <ul>
                         {activeEvent.deliverables.map((item, i) => (
                           <li key={i}>
@@ -437,22 +408,21 @@ export default function EventsSection({
                     rel="noopener noreferrer"
                     className="am-btn am-btn-primary am-btn-sm am-btn-full"
                   >
-                    <span>Buka Link Pendaftaran / Informasi</span>
+                    <span>Informasi & Pendaftaran</span>
                     <ExternalLink size={14} />
                   </a>
                 )}
               </div>
             </div>
 
-            {/* RIGHT COLUMN: DYNAMIC DONATION PANEL (CLOSED NOTICE VS ACTIVE CONFIGURATOR) */}
+            {/* RIGHT COLUMN: DYNAMIC DONATION PANEL */}
             <div className="am-card am-donation-studio-col">
               {!donationConfig.isOpen ? (
-                /* MODE 1: DONATION CLOSED / COMPLETED ARCHIVE VIEW */
                 <div className="am-donation-closed-studio">
                   <div className="am-closed-hero-box">
                     <div className="am-closed-badge-row">
                       <span className="am-closed-pill">
-                        <Lock size={13} /> PENGGALANGAN DONASI DITUTUP
+                        <Lock size={13} /> PERIODE DONASI BERAKHIR
                       </span>
                       <span className="am-verified-pill">
                         <CheckCircle2 size={13} /> 100% TERSALURKAN
@@ -460,17 +430,17 @@ export default function EventsSection({
                     </div>
 
                     <h3>
-                      Terima Kasih! Program Open Donation KURMA Telah Selesai
+                      Laporan Penyaluran Bakti Sosial & Santunan Ramadhan
                     </h3>
                     <p>
-                      Penggalangan donasi untuk{' '}
+                      Kegiatan penggalangan donasi untuk{' '}
                       <strong>
                         Panti Asuhan &ldquo;Immamul Mutaqin&rdquo; (14 – 22 April
                         2022)
                       </strong>{' '}
-                      telah resmi berakhir dan seluruh donasi uang tunai,
-                      sembako, serta pakaian layak pakai telah diserahterimakan
-                      kepada pengurus panti asuhan.
+                      telah terlaksana dengan baik. Seluruh amanah donatur berupa
+                      dana santunan, paket sembako, serta pakaian layak pakai
+                      telah diserahkan secara langsung kepada pihak panti asuhan.
                     </p>
 
                     <div className="am-closed-stats-grid">
@@ -485,29 +455,26 @@ export default function EventsSection({
                         <small>Panti Asuhan • AMF Baksos</small>
                       </div>
                       <div className="am-closed-stat-card">
-                        <span>Status Rekening Donasi</span>
-                        <strong>Nonaktif Sementara</strong>
-                        <small>Menunggu Event AMF Berikutnya</small>
+                        <span>Penyaluran Amanah</span>
+                        <strong>100% Selesai</strong>
+                        <small>Dana, Sembako & Pakaian</small>
                       </div>
                     </div>
                   </div>
 
-                  {/* Archived Bank Reference (Disabled Copy to prevent accidental transfers) */}
                   <div className="am-archived-accounts-section">
                     <div className="am-archived-head">
                       <h4>
-                        <Archive size={16} /> Arsip Rekening Resmi AMF (Tidak
-                        Menerima Transfer Saat Ini)
+                        <Archive size={16} /> Daftar Kanal Rekening Resmi AMF
                       </h4>
                       <span className="am-archived-note">
-                        Rekening di bawah ini hanya ditampilkan sebagai arsip
-                        transparansi poster resmi Carrd dan akan diaktifkan
-                        kembali oleh Admin saat event donasi baru dibuka.
+                        Informasi rekening resmi Ambulu Mengajar Filantropi
+                        (AMF) saat periode penggalangan donasi dibuka:
                       </span>
                     </div>
 
                     <div className="am-bank-studio-grid is-disabled-grid">
-                      {donationConfig.bankAccounts.map((acc) => (
+                      {(donationConfig.bankAccounts || []).map((acc) => (
                         <div
                           key={acc.id || acc.bank}
                           className="am-bank-studio-card is-archived-card"
@@ -520,7 +487,7 @@ export default function EventsSection({
                               {acc.bank}
                             </span>
                             <span className="am-bank-closed-tag">
-                              <Lock size={12} /> Ditutup
+                              <Lock size={12} /> Periode Selesai
                             </span>
                           </div>
                           <div className="am-bank-num">{acc.number}</div>
@@ -530,9 +497,8 @@ export default function EventsSection({
                     </div>
                   </div>
 
-                  {/* Recent Verified Donations History */}
                   <div className="am-donations-history-box">
-                    <h4>Riwayat Penyaluran & Apresiasi Donatur Terverifikasi</h4>
+                    <h4>JejaK Apresiasi & Penyaluran Donasi</h4>
                     <div className="am-donations-log-list">
                       {donationsLog.slice(0, 4).map((log) => (
                         <div key={log.id} className="am-donation-log-item">
@@ -557,15 +523,14 @@ export default function EventsSection({
                     </div>
                   </div>
 
-                  {/* Contact Persons & Admin Trigger */}
                   <div className="am-closed-footer-actions">
                     <div className="am-cp-info-box">
                       <span>
-                        Ingin berkolaborasi untuk program Bakti Sosial / Beasiswa
-                        AMF berikutnya? Hubungi Narahubung Resmi:
+                        Ingin bersinergi untuk program Bakti Sosial atau Beasiswa
+                        AMF berikutnya? Hubungi Narahubung Resmi kami:
                       </span>
                       <div className="am-wa-confirm-grid">
-                        {donationConfig.contactPersons.map((cp) => (
+                        {(donationConfig.contactPersons || []).map((cp) => (
                           <a
                             key={cp.name}
                             href={cp.waLink}
@@ -582,38 +547,18 @@ export default function EventsSection({
                         ))}
                       </div>
                     </div>
-
-                    <div className="am-admin-callout-bar">
-                      <div>
-                        <strong>Pengurus Ambulu Mengajar?</strong>
-                        <span>
-                          Anda dapat membuka kembali Open Donation atau menambah
-                          event baru dari Panel Admin.
-                        </span>
-                      </div>
-                      <button
-                        type="button"
-                        className="am-btn am-btn-primary am-btn-sm"
-                        onClick={onOpenAdmin}
-                      >
-                        <Settings size={14} /> Kelola via Admin
-                      </button>
-                    </div>
                   </div>
                 </div>
               ) : (
-                /* MODE 2: ACTIVE SMART DONATION CONFIGURATOR (When Admin opens donation) */
                 <>
                   <div className="am-donation-studio-header">
                     <span className="am-studio-badge">
-                      <HeartHandshake size={14} /> Smart Donation Configurator
-                      (Aktif)
+                      <HeartHandshake size={14} /> Portal Donasi & Filantropi
                     </span>
                     <h3>{donationConfig.campaignTitle}</h3>
                     <p>{donationConfig.activeNoticeDesc}</p>
                   </div>
 
-                  {/* STEP 1: CHOOSE DONATION TYPE */}
                   <div className="am-config-step">
                     <div className="am-step-label">
                       <span className="am-step-num">1</span>
@@ -641,7 +586,6 @@ export default function EventsSection({
                     </div>
                   </div>
 
-                  {/* STEP 2: NOMINAL PRESETS */}
                   {donationType === 'uang' && (
                     <div className="am-config-step">
                       <div className="am-step-label">
@@ -677,7 +621,6 @@ export default function EventsSection({
                     </div>
                   )}
 
-                  {/* STEP 3: OFFICIAL BANK ACCOUNTS */}
                   <div className="am-config-step">
                     <div className="am-step-label">
                       <span className="am-step-num">
@@ -689,7 +632,7 @@ export default function EventsSection({
                       </span>
                     </div>
                     <div className="am-bank-studio-grid">
-                      {donationConfig.bankAccounts.map((acc) => {
+                      {(donationConfig.bankAccounts || []).map((acc) => {
                         const isCopied = copiedId === (acc.id || acc.bank);
                         return (
                           <div
@@ -737,18 +680,17 @@ export default function EventsSection({
                     </div>
                   </div>
 
-                  {/* STEP 4: WHATSAPP CONFIRMATION GENERATOR */}
                   <div className="am-config-step am-wa-confirm-step">
                     <div className="am-step-label">
                       <span className="am-step-num">
                         {donationType === 'uang' ? '4' : '3'}
                       </span>
                       <span>
-                        Konfirmasi Donasi Otomatis via WhatsApp Narahubung Resmi
+                        Konfirmasi Donasi via WhatsApp Narahubung Resmi
                       </span>
                     </div>
                     <div className="am-wa-confirm-grid">
-                      {donationConfig.contactPersons.map((cp) => (
+                      {(donationConfig.contactPersons || []).map((cp) => (
                         <button
                           key={cp.name}
                           type="button"
@@ -759,7 +701,7 @@ export default function EventsSection({
                           <MessageCircle size={18} />
                           <div>
                             <strong>Konfirmasi ke Kak {cp.name}</strong>
-                            <span>{cp.phoneDisplay} (Pesan Otomatis)</span>
+                            <span>{cp.phoneDisplay}</span>
                           </div>
                         </button>
                       ))}

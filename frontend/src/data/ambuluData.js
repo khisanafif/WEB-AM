@@ -491,8 +491,46 @@ export const FAQS = [
   },
 ];
 
-// State Default untuk Backend & Sinkronisasi Admin (KURMA 2022 berstatus Selesai / Terlaksana)
+// State Default CMS untuk Backend & Sinkronisasi
 export const DEFAULT_BACKEND_STATE = {
+  orgInfo: {
+    name: ORG_INFO.name,
+    shortName: ORG_INFO.shortName,
+    tagline: ORG_INFO.tagline,
+    category: ORG_INFO.category,
+    location: ORG_INFO.location,
+    foundedYear: String(ORG_INFO.foundedYear),
+    description: ORG_INFO.exactCarrdDescription,
+    educationFocus:
+      'Memfasilitasi siswa-siswi SMA/SMK/MA sederajat di wilayah Ambulu dengan bimbingan belajar, pengenalan dunia perkuliahan, bedah jurusan, serta motivasi studi lanjut bersama mahasiswa asal Ambulu dari berbagai perguruan tinggi di Indonesia.',
+    socialFocus:
+      'Menggerakkan kepedulian sosial masyarakat melalui penyelenggaraan beasiswa pendidikan tingkat SMA serta aksi bakti sosial kemanusiaan di panti asuhan dan masyarakat sekitar.',
+    logoMain: ORG_INFO.logoMain,
+    logoFooter: ORG_INFO.logoFooter,
+    logoBadge: ORG_INFO.logoEvent,
+  },
+  heroStats: ORG_INFO.stats.map((s, idx) => ({
+    id: `stat-${idx + 1}`,
+    value: s.value,
+    label: s.label,
+    detail: s.sub,
+  })),
+  visionMission: {
+    vision: ORG_INFO.vision,
+    missions: ORG_INFO.missions.map((m, idx) => ({
+      id: `mis-${idx + 1}`,
+      title: m.title,
+      desc: m.desc,
+    })),
+  },
+  milestones: ORG_INFO.milestones.map((ms, idx) => ({
+    id: `ms-${idx + 1}`,
+    year: ms.year,
+    badge: ms.badge,
+    title: ms.title,
+    desc: ms.desc,
+  })),
+  divisions: DIVISIONS,
   events: [
     {
       id: 'evt-kurma-2022',
@@ -502,7 +540,7 @@ export const DEFAULT_BACKEND_STATE = {
       period: '14 – 22 April 2022',
       eventDate: '2022-04-22',
       location: 'Panti Asuhan Immamul Mutaqin, Ambulu, Jember',
-      status: 'completed', // 'ongoing' | 'upcoming' | 'completed'
+      status: 'completed',
       isDonationOpen: false,
       poster: 'assets/images/image04.jpg',
       badgeLogo: 'assets/images/image03.png',
@@ -512,9 +550,9 @@ export const DEFAULT_BACKEND_STATE = {
       description:
         'Kegiatan penggalangan donasi terbuka dan kunjungan bakti sosial Ramadhan bersama adik-adik Panti Asuhan Immamul Mutaqin yang diselenggarakan oleh Divisi Ambulu Mengajar Filantropi (AMF).',
       completionReport:
-        'Kegiatan KURMA (Kunjungan Ramadhan) dan penyaluran donasi untuk Panti Asuhan "Immamul Mutaqin" telah SELESAI dilaksanakan pada 22 April 2022. Seluruh donasi uang tunai, sembako, dan pakaian layak pakai telah disalurkan 100% kepada penerima manfaat.',
+        'Kegiatan KURMA (Kunjungan Ramadhan) dan penyaluran donasi untuk Panti Asuhan "Immamul Mutaqin" telah selesai dilaksanakan pada 22 April 2022. Seluruh amanah donasi dana tunai, sembako, dan pakaian layak pakai telah disalurkan sepenuhnya kepada penerima manfaat.',
       deliverables: [
-        'Penyaluran donasi uang tunai & santunan pendidikan',
+        'Penyaluran donasi dana tunai & santunan pendidikan',
         'Paket sembako & kebutuhan pokok panti asuhan',
         'Pakaian layak pakai & perlengkapan ibadah',
         'Buka puasa bersama & kelas motivasi Ramadhan',
@@ -539,7 +577,7 @@ export const DEFAULT_BACKEND_STATE = {
       description:
         'Kolaborasi strategis Ambulu Mengajar Filantropi (AMF) bersama Pembidik Misi untuk memberikan edukasi beasiswa, bedah jalur masuk perguruan tinggi, serta pendampingan siswa berprestasi.',
       completionReport:
-        'Program sosialisasi AMF X Pembidik Misi telah terlaksana dengan antusiasme tinggi dari pelajar SMA/SMK sederajat di Ambulu. Nantikan jadwal batch berikutnya yang akan diumumkan oleh Admin.',
+        'Program sosialisasi AMF X Pembidik Misi telah terlaksana dengan antusiasme tinggi dari pelajar SMA/SMK sederajat di Kecamatan Ambulu.',
       deliverables: [
         'Talkshow & bedah beasiswa kuliah (KIP-K / Beasiswa Unggulan)',
         'Sesi mentoring bersama mahasiswa asal Ambulu',
@@ -552,7 +590,7 @@ export const DEFAULT_BACKEND_STATE = {
       title: 'Ambulu Mengajar Goes To School & Open Recruitment Relawan',
       subtitle: 'Sosialisasi Kampus & Rekrutmen Pengurus Baru (AML & HRD)',
       category: 'Sosialisasi & Rekrutmen (AML / HRD)',
-      period: 'Segera Hadir (Menunggu Pengumuman Admin)',
+      period: 'Agenda Tahunan Berikutnya',
       eventDate: '2026-08-01',
       location: 'Kecamatan Ambulu, Kabupaten Jember',
       status: 'upcoming',
@@ -563,12 +601,12 @@ export const DEFAULT_BACKEND_STATE = {
       collectedAmount: 0,
       donorCount: 0,
       description:
-        'Agenda tahunan kunjungan ke sekolah-sekolah menengah atas di Kecamatan Ambulu serta pembukaan rekrutmen relawan mahasiswa baru Ambulu Mengajar.',
+        'Agenda kunjungan edukatif ke sekolah-sekolah menengah atas di Kecamatan Ambulu serta pembukaan rekrutmen relawan mahasiswa baru Ambulu Mengajar.',
       completionReport:
-        'Event ini berstatus Segera Hadir (Upcoming). Admin dapat mengubah status menjadi "Sedang Berlangsung" saat pendaftaran resmi dibuka.',
+        'Program kunjungan sekolah dan rekrutmen relawan periode berikutnya sedang dalam tahap persiapan jadwal bersama pihak sekolah mitra di Kecamatan Ambulu.',
       deliverables: [
         'Roadshow sosialisasi dunia perkuliahan ke SMA/SMK/MA',
-        'Open Recruitment staf divisi HRD, AML, AMF, dan KOMINFO',
+        'Open Recruitment relawan divisi HRD, AML, AMF, dan KOMINFO',
         'Penjaringan calon penerima Beasiswa SMA Ambulu Mengajar',
       ],
       registrationUrl: 'https://linktr.ee/AmbuluMengajar',
@@ -577,10 +615,10 @@ export const DEFAULT_BACKEND_STATE = {
   donationConfig: {
     isOpen: false,
     campaignTitle: 'Program Donasi Bakti Sosial & Beasiswa AMF',
-    statusBadgeText: 'DONASI DITUTUP — EVENT TELAH SELESAI',
-    closedNoticeTitle: 'Penggalangan Donasi Event KURMA Telah Selesai',
+    statusBadgeText: 'PROGRAM DONASI TELAH SELESAI',
+    closedNoticeTitle: 'Penyaluran Donasi Program KURMA Telah Selesai Dilaksanakan',
     closedNoticeDesc:
-      'Terima kasih atas antusiasme dan kedermawanan para donatur. Program Open Donation KURMA (Panti Asuhan Immamul Mutaqin) telah resmi ditutup dan disalurkan sepenuhnya. Saat ini tidak ada penggalangan donasi terbuka. Pengurus dapat mengaktifkan kampanye donasi baru kapan saja melalui Panel Admin.',
+      'Terima kasih yang sebesar-besarnya kepada seluruh donatur dan mitra kebaikan. Penggalangan donasi kegiatan KURMA (Panti Asuhan Immamul Mutaqin) telah resmi berakhir dan seluruh bantuan telah diserahterimakan kepada penerima manfaat. Nantikan informasi pembukaan program bakti sosial dan beasiswa periode berikutnya.',
     activeNoticeDesc:
       'Salurkan dukungan terbaik Anda untuk program Beasiswa SMA & Bakti Sosial Ambulu Mengajar Filantropi (AMF) melalui rekening resmi di bawah ini.',
     bankAccounts: FEATURED_EVENT.bankAccounts.map((b, i) => ({
@@ -619,6 +657,15 @@ export const DEFAULT_BACKEND_STATE = {
       createdAt: '2022-04-20T14:15:00.000Z',
     },
   ],
+  customPhotos: [],
+  faqs: FAQS.map((f, idx) => ({
+    id: `faq-${idx + 1}`,
+    category: ['profil', 'relawan', 'program', 'donasi'][idx] || 'profil',
+    badge: ['Organisasi & Sejarah', 'Struktur & Divisi', 'Program AMF', 'Filantropi Sosial'][idx] || 'Informasi Umum',
+    q: f.q,
+    a: f.a,
+  })),
+  socialLinks: SOCIAL_LINKS,
   updatedAt: new Date().toISOString(),
 };
 

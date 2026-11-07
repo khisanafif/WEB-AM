@@ -16,13 +16,13 @@ import {
 import { ORG_INFO } from '../data/ambuluData';
 
 const DOCK_ITEMS = [
-  { id: 'home', label: 'Bento Hero', icon: Home },
-  { id: 'tentang', label: 'Time-Machine', icon: Compass },
-  { id: 'divisiambulumengajar', label: 'Studio Divisi', icon: Layers },
-  { id: 'eventambulumengajar', label: 'Event & Arsip', icon: HeartHandshake },
-  { id: 'dokumentasiambulumengajar', label: 'Cinema Galeri', icon: Camera },
-  { id: 'faq', label: 'Tanya Jawab', icon: HelpCircle },
-  { id: 'kontak', label: 'Sinergi WA', icon: MessageSquareHeart },
+  { id: 'home', label: 'Beranda', icon: Home },
+  { id: 'tentang', label: 'Tentang', icon: Compass },
+  { id: 'divisiambulumengajar', label: 'Divisi', icon: Layers },
+  { id: 'eventambulumengajar', label: 'Program', icon: HeartHandshake },
+  { id: 'dokumentasiambulumengajar', label: 'Dokumentasi', icon: Camera },
+  { id: 'faq', label: 'FAQ', icon: HelpCircle },
+  { id: 'kontak', label: 'Kontak', icon: MessageSquareHeart },
 ];
 
 export default function Navbar({
@@ -32,9 +32,10 @@ export default function Navbar({
   onOpenCommandPalette,
   onOpenAdmin,
   adminUser,
-  isDonationOpen,
+  orgInfo,
 }) {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const info = orgInfo || ORG_INFO;
 
   useEffect(() => {
     const onScroll = () => {
@@ -53,7 +54,6 @@ export default function Navbar({
 
   return (
     <>
-      {/* TOP EXECUTIVE COMMAND HEADER */}
       <header className="am-exec-header">
         <div
           className="am-scroll-progress"
@@ -64,34 +64,32 @@ export default function Navbar({
           <a href="#home" className="am-brand">
             <div className="am-brand-logo-wrap">
               <img
-                src={ORG_INFO.logoMain}
-                alt="Logo Ambulu Mengajar"
+                src={info.logoMain || ORG_INFO.logoMain}
+                alt={`Logo ${info.name}`}
                 className="am-brand-logo"
               />
             </div>
             <div className="am-brand-text">
               <div className="am-brand-title-row">
-                <span className="am-brand-name">{ORG_INFO.name}</span>
+                <span className="am-brand-name">{info.name}</span>
                 <span className="am-live-pill">
                   <span className="am-live-dot" />
-                  {isDonationOpen ? 'OPEN DONATION AKTIF' : 'EVENT KURMA SELESAI'}
+                  EST. {info.foundedYear || '2011'}
                 </span>
               </div>
               <span className="am-brand-meta">
-                <Sparkles size={11} /> Non-Profit Pendidikan & Sosial • Kec.
-                Ambulu, Jember
+                <Sparkles size={11} /> {info.category} • {info.location}
               </span>
             </div>
           </a>
 
-          {/* Interactive Command Search Pill */}
           <button
             type="button"
             className="am-cmd-trigger"
             onClick={onOpenCommandPalette}
           >
             <Search size={15} />
-            <span>Eksplorasi Cepat Divisi, Album, atau Event...</span>
+            <span>Cari divisi, kegiatan, atau dokumentasi...</span>
             <kbd>Ctrl K</kbd>
           </button>
 
@@ -100,11 +98,11 @@ export default function Navbar({
               type="button"
               className="am-theme-pill-btn"
               onClick={onToggleTheme}
-              title="Ubah Atmosfer Tampilan"
+              title="Ubah Tema Tampilan"
             >
               {theme === 'light' ? (
                 <>
-                  <Moon size={15} /> <span>Mode Carrd</span>
+                  <Moon size={15} /> <span>Mode Gelap</span>
                 </>
               ) : (
                 <>
@@ -118,7 +116,7 @@ export default function Navbar({
               className="am-btn am-btn-outline am-btn-sm am-hide-sm"
             >
               <HeartHandshake size={15} />
-              <span>{isDonationOpen ? 'Donasi Aktif' : 'Arsip Event'}</span>
+              <span>Program & Sosial</span>
             </a>
 
             <button
@@ -129,17 +127,13 @@ export default function Navbar({
               }`}
             >
               <ShieldCheck size={15} />
-              <span>{adminUser ? 'Dashboard Admin' : 'Login Admin'}</span>
+              <span>{adminUser ? 'Panel Admin' : 'Admin'}</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* FLOATING INTERACTIVE MACOS-STYLE GLASS DOCK */}
-      <nav
-        className="am-floating-dock"
-        aria-label="Navigasi Interaktif Melayang"
-      >
+      <nav className="am-floating-dock" aria-label="Navigasi Utama">
         {DOCK_ITEMS.map((item) => {
           const IconComponent = item.icon;
           const isActive = activeSection === item.id;
@@ -158,11 +152,11 @@ export default function Navbar({
         <button
           type="button"
           className="am-dock-item am-dock-search-btn"
-          onClick={onOpenAdmin}
-          title="Portal Login Admin"
+          onClick={onOpenCommandPalette}
+          title="Pencarian Cepat (Ctrl+K)"
         >
-          <ShieldCheck size={18} />
-          <span className="am-dock-label">Admin</span>
+          <Search size={18} />
+          <span className="am-dock-label">Cari</span>
         </button>
       </nav>
     </>

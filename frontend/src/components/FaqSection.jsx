@@ -15,45 +15,49 @@ const FAQ_CATEGORIES = [
   { id: 'profil', label: 'Profil & Lokasi' },
   { id: 'relawan', label: 'Relawan & Divisi' },
   { id: 'program', label: 'Beasiswa & Sekolah' },
-  { id: 'donasi', label: 'Donasi Sosial' },
+  { id: 'donasi', label: 'Filantropi Sosial' },
 ];
 
-const ENRICHED_FAQS = FAQS.map((item, idx) => {
-  const categoryMap = ['profil', 'relawan', 'program', 'program', 'donasi'];
-  const badgeMap = [
-    'Organisasi & Sejarah',
-    'Rekrutmen HRD',
-    'Program AMF',
-    'Program AML',
-    'Transparansi AMF',
-  ];
-  return {
-    ...item,
-    id: `faq-${idx + 1}`,
-    number: `0${idx + 1}`,
-    category: categoryMap[idx] || 'profil',
-    badge: badgeMap[idx] || 'Informasi Umum',
-  };
-});
-
-export default function FaqSection() {
+export default function FaqSection({ backendState }) {
   const [openIndex, setOpenIndex] = useState(0);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const enrichedFaqs = useMemo(() => {
+    const rawList =
+      backendState?.faqs && backendState.faqs.length > 0
+        ? backendState.faqs
+        : FAQS;
+    const categoryMap = ['profil', 'relawan', 'program', 'program', 'donasi'];
+    const badgeMap = [
+      'Organisasi & Sejarah',
+      'Struktur & Divisi',
+      'Program AMF',
+      'Program AML',
+      'Filantropi Sosial',
+    ];
+    return rawList.map((item, idx) => ({
+      ...item,
+      id: item.id || `faq-${idx + 1}`,
+      number: `0${idx + 1}`,
+      category: item.category || categoryMap[idx] || 'profil',
+      badge: item.badge || badgeMap[idx] || 'Informasi Umum',
+    }));
+  }, [backendState?.faqs]);
+
   const filteredFaqs = useMemo(() => {
-    return ENRICHED_FAQS.filter((item) => {
+    return enrichedFaqs.filter((item) => {
       const matchCat =
         activeCategory === 'all' || item.category === activeCategory;
       const q = searchQuery.trim().toLowerCase();
       const matchSearch =
         !q ||
-        item.q.toLowerCase().includes(q) ||
-        item.a.toLowerCase().includes(q) ||
-        item.badge.toLowerCase().includes(q);
+        (item.q || '').toLowerCase().includes(q) ||
+        (item.a || '').toLowerCase().includes(q) ||
+        (item.badge || '').toLowerCase().includes(q);
       return matchCat && matchSearch;
     });
-  }, [activeCategory, searchQuery]);
+  }, [enrichedFaqs, activeCategory, searchQuery]);
 
   return (
     <section className="am-section am-section-alt" id="faq">
@@ -61,21 +65,20 @@ export default function FaqSection() {
         <div className="am-section-header am-header-split">
           <div>
             <span className="am-section-eyebrow">
-              <Sparkles size={13} /> Interactive Knowledge Hub
+              <Sparkles size={13} /> Pusat Informasi & Bantuan
             </span>
             <h2 className="am-section-title">
-              Pusat Informasi & <span>Tanya Jawab</span>
+              Pertanyaan yang Sering <span>Diajukan</span>
             </h2>
           </div>
           <p className="am-section-desc">
-            Filter berdasarkan topik atau cari kata kunci mengenai keanggotaan
-            relawan, program beasiswa SMA (AMF), sosialisasi sekolah (AML), dan
-            penyaluran donasi di Ambulu Mengajar.
+            Panduan lengkap mengenai keanggotaan relawan, program beasiswa
+            tingkat SMA, kunjungan sosialisasi sekolah, serta kegiatan sosial di
+            Ambulu Mengajar.
           </p>
         </div>
 
         <div className="am-faq-studio-grid">
-          {/* LEFT RAIL: SEARCH, CATEGORY FILTER & QUICK HELP CARD */}
           <aside className="am-card am-faq-sidebar">
             <div className="am-faq-search-box">
               <Search size={16} />
@@ -104,8 +107,8 @@ export default function FaqSection() {
               {FAQ_CATEGORIES.map((cat) => {
                 const count =
                   cat.id === 'all'
-                    ? ENRICHED_FAQS.length
-                    : ENRICHED_FAQS.filter((f) => f.category === cat.id).length;
+                    ? enrichedFaqs.length
+                    : enrichedFaqs.filter((f) => f.category === cat.id).length;
                 return (
                   <button
                     key={cat.id}
@@ -127,20 +130,22 @@ export default function FaqSection() {
 
             <div className="am-faq-helper-box">
               <div className="am-faq-helper-badge">
-                <Compass size={14} /> Butuh Bantuan Langsung?
+                <Compass size={14} /> Layanan Informasi
               </div>
               <h4>Punya Pertanyaan Khusus?</h4>
               <p>
                 Tim narahubung Ambulu Mengajar siap membantu sekolah, pelajar,
-                maupun calon donatur secara langsung.
+                maupun mitra kolaborasi secara langsung.
               </p>
-              <a href="#kontak" className="am-btn am-btn-primary am-btn-sm am-btn-full">
+              <a
+                href="#kontak"
+                className="am-btn am-btn-primary am-btn-sm am-btn-full"
+              >
                 <MessageCircle size={15} /> Hubungi Tim Kami
               </a>
             </div>
           </aside>
 
-          {/* RIGHT STAGE: INTERACTIVE NUMBERED ACCORDION */}
           <div className="am-faq-list">
             {filteredFaqs.length === 0 ? (
               <div className="am-card am-empty-state">
@@ -194,18 +199,18 @@ export default function FaqSection() {
                         <p>{item.a}</p>
                         <div className="am-faq-answer-footer">
                           <span className="am-faq-verified">
-                            <CheckCircle2 size={14} /> Informasi Terverifikasi
-                            Ambulu Mengajar
+                            <CheckCircle2 size={14} /> Informasi Resmi Ambulu
+                            Mengajar
                           </span>
                           <a
                             href={`https://wa.me/6282257081262?text=${encodeURIComponent(
-                              `Halo Admin Ambulu Mengajar, saya ingin bertanya lebih lanjut mengenai: "${item.q}"`
+                              `Halo Kak, saya ingin bertanya lebih lanjut mengenai: "${item.q}"`
                             )}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="am-faq-ask-wa"
                           >
-                            <MessageCircle size={13} /> Tanyakan Lebih Lanjut via WA
+                            <MessageCircle size={13} /> Tanyakan via WhatsApp
                           </a>
                         </div>
                       </div>

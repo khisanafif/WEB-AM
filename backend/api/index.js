@@ -20,16 +20,28 @@ const isVercel = Boolean(
   process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
 );
 const DB_FILE_PATH = isVercel
-  ? path.join('/tmp', 'ambulu_mengajar_db.json')
+  ? path.join('/tmp', 'ambulu_mengajar_cms_db.json')
   : path.join(__dirname, '..', 'data', 'db.json');
 
 let memoryDb = null;
+
+function mergeWithSeed(loaded) {
+  const base = JSON.parse(JSON.stringify(SEED_DATA));
+  if (!loaded || typeof loaded !== 'object') return base;
+  return {
+    ...base,
+    ...loaded,
+    orgInfo: { ...base.orgInfo, ...(loaded.orgInfo || {}) },
+    visionMission: { ...base.visionMission, ...(loaded.visionMission || {}) },
+    donationConfig: { ...base.donationConfig, ...(loaded.donationConfig || {}) },
+  };
+}
 
 function readDb() {
   try {
     if (fs.existsSync(DB_FILE_PATH)) {
       const raw = fs.readFileSync(DB_FILE_PATH, 'utf-8');
-      memoryDb = JSON.parse(raw);
+      memoryDb = mergeWithSeed(JSON.parse(raw));
       return memoryDb;
     }
   } catch (err) {
@@ -190,16 +202,18 @@ async function apiHandler(req, res) {
   // 1. Root & Health Check
   if (method === 'GET' && (pathname === '/' || pathname === '/api')) {
     return sendJson(res, 200, {
-      service: 'Ambulu Mengajar Backend API (Standalone Vercel Serverless)',
+      service: 'Ambulu Mengajar CMS & Backend API',
       status: 'online',
       environment: isVercel ? 'vercel-serverless' : 'local-node',
       endpoints: {
         health: '/api/health',
         publicState: '/api/public/state',
+        cmsContent: '/api/cms/content',
         adminLogin: '/api/auth/login',
         events: '/api/events',
         donationsConfig: '/api/donations/config',
         donationsLog: '/api/donations',
+        galleries: '/api/galleries',
       },
     });
   }
@@ -211,21 +225,29 @@ async function apiHandler(req, res) {
       status: 'ok',
       environment: isVercel ? 'vercel-serverless' : 'local-node',
       eventsCount: db.events.length,
+      divisionsCount: db.divisions.length,
       isDonationOpen: db.donationConfig.isOpen,
       updatedAt: db.updatedAt,
     });
   }
 
-  // 2. Public State Endpoint
+  // 2. Public Full CMS State Endpoint
   if (method === 'GET' && pathname === '/api/public/state') {
     const db = readDb();
     return sendJson(res, 200, {
       success: true,
       data: {
+        orgInfo: db.orgInfo,
+        heroStats: db.heroStats,
+        visionMission: db.visionMission,
+        milestones: db.milestones,
+        divisions: db.divisions,
         events: db.events,
         donationConfig: db.donationConfig,
         donationsLog: db.donationsLog,
         customPhotos: db.customPhotos || [],
+        faqs: db.faqs,
+        socialLinks: db.socialLinks,
         updatedAt: db.updatedAt,
       },
     });
@@ -247,7 +269,7 @@ async function apiHandler(req, res) {
         username: ADMIN_USERNAME,
         name: 'Administrator Ambulu Mengajar',
         role: 'admin',
-        division: 'Pengurus Inti & AMF',
+        division: 'Pengurus Inti',
       };
       const token = signToken(userPayload);
       return sendJson(res, 200, {
@@ -275,7 +297,44 @@ async function apiHandler(req, res) {
     return sendJson(res, 200, { success: true, user: admin });
   }
 
-  // 4. Events Collection (/api/events)
+  // 4. Full CMS Content Update Endpoint (/api/cms/content)
+  if (pathname === '/api/cms/content' && method === 'PUT') {
+    const admin = getAdminFromReq(req);
+    if (!admin) {
+      return sendJson(res, 401, {
+        success: false,
+        message: 'Akses ditolak. Silakan login sebagai Admin.',
+      });
+    }
+
+    const body = await parseJsonBody(req);
+    const db = readDb();
+
+    if (body.orgInfo) db.orgInfo = { ...db.orgInfo, ...body.orgInfo };
+    if (Array.isArray(body.heroStats)) db.heroStats = body.heroStats;
+    if (body.visionMission) {
+      db.visionMission = { ...db.visionMission, ...body.visionMission };
+    }
+    if (Array.isArray(body.milestones)) db.milestones = body.milestones;
+    if (Array.isArray(body.divisions)) db.divisions = body.divisions;
+    if (Array.isArray(body.events)) db.events = body.events;
+    if (body.donationConfig) {
+      db.donationConfig = { ...db.donationConfig, ...body.donationConfig };
+    }
+    if (Array.isArray(body.donationsLog)) db.donationsLog = body.donationsLog;
+    if (Array.isArray(body.customPhotos)) db.customPhotos = body.customPhotos;
+    if (Array.isArray(body.faqs)) db.faqs = body.faqs;
+    if (Array.isArray(body.socialLinks)) db.socialLinks = body.socialLinks;
+
+    writeDb(db);
+    return sendJson(res, 200, {
+      success: true,
+      message: 'Konten website berhasil diperbarui.',
+      state: db,
+    });
+  }
+
+  // 5. Events Collection (/api/events)
   if (method === 'GET' && pathname === '/api/events') {
     const db = readDb();
     return sendJson(res, 200, { success: true, events: db.events });
@@ -307,7 +366,7 @@ async function apiHandler(req, res) {
       period: body.period || 'Jadwal Menyusul',
       eventDate: body.eventDate || new Date().toISOString().slice(0, 10),
       location: body.location || 'Kecamatan Ambulu, Jember',
-      status: body.status || 'upcoming', // 'ongoing' | 'upcoming' | 'completed'
+      status: body.status || 'upcoming',
       isDonationOpen: Boolean(body.isDonationOpen),
       poster: body.poster || 'assets/images/image04.jpg',
       badgeLogo: 'assets/images/image03.png',
@@ -336,7 +395,6 @@ async function apiHandler(req, res) {
     });
   }
 
-  // 5. Event Item Routes (/api/events/:id and /api/events/:id/status)
   const eventStatusMatch = pathname.match(/^\/api\/events\/([^/]+)\/status$/);
   if (eventStatusMatch && method === 'PATCH') {
     const admin = getAdminFromReq(req);
@@ -476,13 +534,13 @@ async function apiHandler(req, res) {
         body.statusBadgeText ||
         (body.isOpen
           ? 'OPEN DONATION — SEDANG BERLANGSUNG'
-          : 'DONASI DITUTUP — EVENT TELAH SELESAI'),
+          : 'PROGRAM DONASI TELAH SELESAI'),
     };
 
     writeDb(db);
     return sendJson(res, 200, {
       success: true,
-      message: 'Konfigurasi status donasi & rekening berhasil disimpan.',
+      message: 'Konfigurasi donasi & rekening berhasil disimpan.',
       donationConfig: db.donationConfig,
       state: db,
     });
@@ -498,7 +556,7 @@ async function apiHandler(req, res) {
       return sendJson(res, 403, {
         success: false,
         message:
-          'Mohon maaf, saat ini penggalangan donasi sedang ditutup karena event telah selesai.',
+          'Mohon maaf, saat ini penggalangan donasi sedang tidak dibuka.',
       });
     }
 
@@ -640,7 +698,7 @@ async function apiHandler(req, res) {
     writeDb(fresh);
     return sendJson(res, 200, {
       success: true,
-      message: 'Database berhasil di-reset ke data awal (Seed Data).',
+      message: 'Database berhasil di-reset ke data awal.',
       state: fresh,
     });
   }
@@ -651,7 +709,6 @@ async function apiHandler(req, res) {
   });
 }
 
-// Jalankan server HTTP lokal jika dieksekusi langsung (node api/index.js)
 if (require.main === module) {
   const server = http.createServer(apiHandler);
   server.listen(PORT, () => {
@@ -661,5 +718,4 @@ if (require.main === module) {
   });
 }
 
-// Export untuk Vercel Serverless Functions
 module.exports = apiHandler;

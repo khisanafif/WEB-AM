@@ -1,6 +1,6 @@
 import { DEFAULT_BACKEND_STATE } from '../data/ambuluData';
 
-const STORAGE_STATE_KEY = 'am_backend_fallback_state_v1';
+const STORAGE_STATE_KEY = 'am_backend_cms_state_v2';
 const STORAGE_TOKEN_KEY = 'am_admin_jwt_token';
 const STORAGE_USER_KEY = 'am_admin_user_info';
 const STORAGE_API_URL_KEY = 'am_custom_api_url';
@@ -41,11 +41,23 @@ export function clearAdminSession() {
   localStorage.removeItem(STORAGE_USER_KEY);
 }
 
+function mergeCmsState(loaded) {
+  const base = JSON.parse(JSON.stringify(DEFAULT_BACKEND_STATE));
+  if (!loaded || typeof loaded !== 'object') return base;
+  return {
+    ...base,
+    ...loaded,
+    orgInfo: { ...base.orgInfo, ...(loaded.orgInfo || {}) },
+    visionMission: { ...base.visionMission, ...(loaded.visionMission || {}) },
+    donationConfig: { ...base.donationConfig, ...(loaded.donationConfig || {}) },
+  };
+}
+
 function getLocalFallbackState() {
   try {
     const raw = localStorage.getItem(STORAGE_STATE_KEY);
     if (raw) {
-      return JSON.parse(raw);
+      return mergeCmsState(JSON.parse(raw));
     }
   } catch {
     // ignore
@@ -56,16 +68,14 @@ function getLocalFallbackState() {
 }
 
 function saveLocalFallbackState(state) {
-  const updated = {
-    ...state,
-    updatedAt: new Date().toISOString(),
-  };
+  const merged = mergeCmsState(state);
+  merged.updatedAt = new Date().toISOString();
   try {
-    localStorage.setItem(STORAGE_STATE_KEY, JSON.stringify(updated));
+    localStorage.setItem(STORAGE_STATE_KEY, JSON.stringify(merged));
   } catch {
     // ignore
   }
-  return updated;
+  return merged;
 }
 
 async function requestApi(endpoint, options = {}) {
@@ -407,6 +417,33 @@ export async function deleteGalleryPhotoApi(photoId) {
       (p) => p.id !== photoId
     );
     return { state: saveLocalFallbackState(current), mode: 'fallback' };
+  }
+}
+
+export async function updateCmsContentApi(cmsPayload) {
+  try {
+    const res = await requestApi('/cms/content', {
+      method: 'PUT',
+      body: JSON.stringify(cmsPayload),
+    });
+    if (res.state) saveLocalFallbackState(res.state);
+    return { state: mergeCmsState(res.state), mode: 'online' };
+  } catch {
+    const current = getLocalFallbackState();
+    const updated = {
+      ...current,
+      ...cmsPayload,
+      orgInfo: cmsPayload.orgInfo
+        ? { ...current.orgInfo, ...cmsPayload.orgInfo }
+        : current.orgInfo,
+      visionMission: cmsPayload.visionMission
+        ? { ...current.visionMission, ...cmsPayload.visionMission }
+        : current.visionMission,
+      donationConfig: cmsPayload.donationConfig
+        ? { ...current.donationConfig, ...cmsPayload.donationConfig }
+        : current.donationConfig,
+    };
+    return { state: saveLocalFallbackState(updated), mode: 'fallback' };
   }
 }
 

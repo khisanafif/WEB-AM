@@ -5,10 +5,22 @@ import {
   MapPin,
   PhoneCall,
   CheckCircle2,
+  Sparkles,
 } from 'lucide-react';
 import { ORG_INFO, SOCIAL_LINKS, FEATURED_EVENT } from '../data/ambuluData';
 
-export default function ContactFooter() {
+export default function ContactFooter({ backendState }) {
+  const orgInfo = backendState?.orgInfo || ORG_INFO;
+  const socialLinks =
+    backendState?.socialLinks && backendState.socialLinks.length > 0
+      ? backendState.socialLinks
+      : SOCIAL_LINKS;
+  const contactPersons =
+    backendState?.donationConfig?.contactPersons &&
+    backendState.donationConfig.contactPersons.length > 0
+      ? backendState.donationConfig.contactPersons
+      : FEATURED_EVENT.contactPersons;
+
   const [formState, setFormState] = useState({
     name: '',
     role: 'Pelajar SMA/SMK/MA',
@@ -17,50 +29,54 @@ export default function ContactFooter() {
   });
   const [submitted, setSubmitted] = useState(false);
 
+  const primaryPhone =
+    contactPersons[0]?.phoneClean || '6282257081262';
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitted(true);
     const text = encodeURIComponent(
-      `Halo Admin Ambulu Mengajar!\n\nSaya *${formState.name}* (${formState.role}).\nKeperluan: *${formState.topic}*\n\nPesan:\n${formState.message}`
+      `Halo Tim ${orgInfo.name}!\n\nSaya *${formState.name}* (${formState.role}).\nKeperluan: *${formState.topic}*\n\nPesan:\n${formState.message}`
     );
     setTimeout(() => {
       window.open(
-        `https://wa.me/6282257081262?text=${text}`,
+        `https://wa.me/${primaryPhone}?text=${text}`,
         '_blank',
         'noopener,noreferrer'
       );
-    }, 500);
+    }, 400);
   };
 
   return (
     <>
-      {/* CONTACT & COLLABORATION SECTION (#kontak) */}
       <section className="am-section" id="kontak">
         <div className="am-container">
-          <div className="am-section-header">
-            <span className="am-section-eyebrow">Hubungi & Kolaborasi</span>
-            <h2 className="am-section-title">
-              Terhubung Bersama <span>Ambulu Mengajar</span>
-            </h2>
+          <div className="am-section-header am-header-split">
+            <div>
+              <span className="am-section-eyebrow">
+                <Sparkles size={13} /> Hubungi & Kolaborasi
+              </span>
+              <h2 className="am-section-title">
+                Terhubung Bersama <span>{orgInfo.name}</span>
+              </h2>
+            </div>
             <p className="am-section-desc">
-              Silakan hubungi kami melalui kanal sosial media resmi atau kirimkan
-              pesan langsung untuk keperluan informasi beasiswa, undangan sekolah,
-              rekrutmen relawan, maupun donasi sosial.
+              Hubungi kami melalui kanal media sosial resmi atau kirimkan pesan
+              langsung untuk keperluan informasi beasiswa, undangan kunjungan
+              sekolah, rekrutmen relawan, maupun kolaborasi sosial.
             </p>
-            <hr className="am-carrd-divider" />
           </div>
 
           <div className="am-contact-grid">
-            {/* Left: Official Channels from ambulumengajar.carrd.co */}
             <div className="am-card am-channels-card">
-              <h3>Kanal Sosial Media Resmi</h3>
+              <h3>Kanal Media Sosial & Narahubung</h3>
               <p className="am-channels-sub">
-                Seluruh tautan resmi sesuai direktori{' '}
-                <strong>ambulumengajar.carrd.co</strong>:
+                Ikuti perkembangan program terbaru dan terhubung langsung dengan
+                tim resmi <strong>{orgInfo.name}</strong>:
               </p>
 
               <div className="am-channel-list">
-                {SOCIAL_LINKS.map((soc) => (
+                {socialLinks.map((soc) => (
                   <a
                     key={soc.id}
                     href={soc.url}
@@ -70,7 +86,7 @@ export default function ContactFooter() {
                   >
                     <div className="am-channel-icon-circle">
                       <svg className="am-carrd-svg-icon">
-                        <use xlinkHref={`#${soc.iconId}`} />
+                        <use xlinkHref={`#${soc.iconId || 'icon-b0b'}`} />
                       </svg>
                     </div>
                     <div className="am-channel-text">
@@ -88,10 +104,10 @@ export default function ContactFooter() {
               <div className="am-direct-contacts-box">
                 <div className="am-direct-item">
                   <MapPin size={17} />
-                  <span>{ORG_INFO.location}</span>
+                  <span>{orgInfo.location}</span>
                 </div>
-                {FEATURED_EVENT.contactPersons.map((cp) => (
-                  <div key={cp.name} className="am-direct-item">
+                {contactPersons.map((cp) => (
+                  <div key={cp.id || cp.name} className="am-direct-item">
                     <PhoneCall size={17} />
                     <a
                       href={cp.waLink}
@@ -105,17 +121,16 @@ export default function ContactFooter() {
               </div>
             </div>
 
-            {/* Right: Interactive Inquiry Form */}
             <div className="am-card am-form-card">
               <h3>Formulir Pesan & Sinergi</h3>
               <p className="am-channels-sub">
-                Kirimkan pertanyaan atau ajakan kolaborasi langsung kepada tim
-                narahubung Ambulu Mengajar:
+                Kirimkan pertanyaan, undangan sekolah, atau ajakan kolaborasi
+                langsung kepada tim narahubung kami:
               </p>
 
               <form onSubmit={handleSubmit} className="am-form">
                 <div className="am-form-group">
-                  <label htmlFor="amName">Nama Lengkap / Nama Sekolah</label>
+                  <label htmlFor="amName">Nama Lengkap / Instansi Sekolah</label>
                   <input
                     id="amName"
                     type="text"
@@ -169,8 +184,8 @@ export default function ContactFooter() {
                       <option value="Undangan Goes To School (AML)">
                         Undangan Goes To School (AML)
                       </option>
-                      <option value="Konfirmasi Donasi / Baksos (AMF)">
-                        Konfirmasi Donasi / Baksos (AMF)
+                      <option value="Kolaborasi Bakti Sosial (AMF)">
+                        Kolaborasi Bakti Sosial (AMF)
                       </option>
                       <option value="Rekrutmen Relawan (HRD)">
                         Rekrutmen Relawan (HRD)
@@ -200,7 +215,7 @@ export default function ContactFooter() {
                   type="submit"
                   className="am-btn am-btn-primary am-btn-full"
                 >
-                  <Send size={17} /> Kirim Pesan ke WhatsApp Resmi
+                  <Send size={17} /> Kirim Pesan via WhatsApp Resmi
                 </button>
 
                 {submitted && (
@@ -208,7 +223,7 @@ export default function ContactFooter() {
                     <CheckCircle2 size={16} />
                     <span>
                       Pesan berhasil disiapkan! Membuka WhatsApp narahubung
-                      Ambulu Mengajar...
+                      resmi...
                     </span>
                   </div>
                 )}
@@ -218,30 +233,26 @@ export default function ContactFooter() {
         </div>
       </section>
 
-      {/* FOOTER (#footer — Matching Carrd #image02, #buttons01, #icons04) */}
       <footer className="am-footer" id="footer">
         <div className="am-container">
           <div id="image02" className="am-footer-logo-wrap">
-            <a
-              href="https://www.instagram.com/ambulumengajar/?utm_medium=copy_link"
-              target="_blank"
-              rel="noopener noreferrer"
-              title="Instagram @ambulumengajar"
-            >
+            <a href="#home" title={orgInfo.name}>
               <img
-                src={ORG_INFO.logoFooter}
-                alt="Banner Resmi Ambulu Mengajar"
+                src={orgInfo.logoFooter || ORG_INFO.logoFooter}
+                alt={`Identitas ${orgInfo.name}`}
               />
             </a>
           </div>
 
-          <hr className="am-carrd-divider" />
-
-          {/* Exact Navigation Buttons (#buttons01 from ambulumengajar.carrd.co) */}
           <ul id="buttons01" className="am-carrd-footer-buttons">
             <li>
               <a href="#home" className="am-carrd-btn">
-                Home
+                Beranda
+              </a>
+            </li>
+            <li>
+              <a href="#tentang" className="am-carrd-btn">
+                Tentang
               </a>
             </li>
             <li>
@@ -251,7 +262,7 @@ export default function ContactFooter() {
             </li>
             <li>
               <a href="#eventambulumengajar" className="am-carrd-btn">
-                Event
+                Program
               </a>
             </li>
             <li>
@@ -261,9 +272,8 @@ export default function ContactFooter() {
             </li>
           </ul>
 
-          {/* Exact Social Media Icons (#icons04 from ambulumengajar.carrd.co) */}
           <ul id="icons04" className="am-carrd-footer-icons">
-            {SOCIAL_LINKS.map((soc) => (
+            {socialLinks.map((soc) => (
               <li key={soc.id}>
                 <a
                   href={soc.url}
@@ -273,7 +283,7 @@ export default function ContactFooter() {
                   title={`${soc.name} (${soc.handle})`}
                 >
                   <svg>
-                    <use xlinkHref={`#${soc.iconId}`} />
+                    <use xlinkHref={`#${soc.iconId || 'icon-b0b'}`} />
                   </svg>
                 </a>
               </li>
@@ -282,20 +292,11 @@ export default function ContactFooter() {
 
           <div className="am-footer-copy">
             <p>
-              <strong>{ORG_INFO.name}</strong> — {ORG_INFO.category} (
-              {ORG_INFO.location})
+              <strong>{orgInfo.name}</strong> — {orgInfo.category} (
+              {orgInfo.location})
             </p>
             <p>
-              © {new Date().getFullYear()} Ambulu Mengajar. Disusun sesuai
-              identitas dan isi resmi{' '}
-              <a
-                href={ORG_INFO.carrdUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                ambulumengajar.carrd.co
-              </a>
-              .
+              © {new Date().getFullYear()} {orgInfo.name}. Hak Cipta Dilindungi.
             </p>
           </div>
         </div>
@@ -303,4 +304,3 @@ export default function ContactFooter() {
     </>
   );
 }
-

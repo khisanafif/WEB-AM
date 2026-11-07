@@ -1,218 +1,215 @@
 import React, { useState } from 'react';
 import {
-  BookOpen,
   Target,
-  History,
-  HeartHandshake,
+  CheckCircle2,
+  Calendar,
+  Sparkles,
+  Heart,
   Users,
-  Flag,
+  BookOpen,
+  Award,
   ChevronRight,
   ChevronLeft,
-  Sparkles,
-  ZoomIn,
 } from 'lucide-react';
 import { ORG_INFO, ALL_GALLERY_PHOTOS } from '../data/ambuluData';
 
 const VALUE_ICONS = {
   pendidikan: BookOpen,
-  sosial: HeartHandshake,
+  sosial: Heart,
   kolaborasi: Users,
-  pengabdian: Flag,
+  pengabdian: Award,
 };
 
 const MILESTONE_PHOTOS = [
-  ALL_GALLERY_PHOTOS[4], // 2011: Classroom inspiration
-  ALL_GALLERY_PHOTOS[10], // 2017: Scholarship / Pembidik Mimpi
-  ALL_GALLERY_PHOTOS[3], // 2019: Team & formal organization
-  ALL_GALLERY_PHOTOS[6], // 2021: AMF Baksos Immamul Mutaqien
-  ALL_GALLERY_PHOTOS[2], // 2022: AMF X Pembidik Misi 2022
+  ALL_GALLERY_PHOTOS[3],
+  ALL_GALLERY_PHOTOS[10],
+  ALL_GALLERY_PHOTOS[4],
+  ALL_GALLERY_PHOTOS[6],
+  ALL_GALLERY_PHOTOS[0],
 ];
 
-export default function AboutSection({ onOpenLightbox }) {
-  const [selectedYearIdx, setSelectedYearIdx] = useState(4); // Default to latest 2022–Kini
+export default function AboutSection({ backendState, onOpenLightbox }) {
+  const milestones =
+    backendState?.milestones && backendState.milestones.length > 0
+      ? backendState.milestones
+      : ORG_INFO.milestones;
+  const vision =
+    backendState?.visionMission?.vision || ORG_INFO.vision;
+  const missions =
+    backendState?.visionMission?.missions &&
+    backendState.visionMission.missions.length > 0
+      ? backendState.visionMission.missions
+      : ORG_INFO.missions;
+
+  const [activeMilestoneIdx, setActiveMilestoneIdx] = useState(
+    Math.max(0, milestones.length - 1)
+  );
   const [activeMissionIdx, setActiveMissionIdx] = useState(0);
 
-  const currentMilestone = ORG_INFO.milestones[selectedYearIdx];
+  const safeIdx = Math.min(activeMilestoneIdx, milestones.length - 1);
+  const currentMilestone = milestones[safeIdx] || milestones[0];
   const currentMilestonePhoto =
-    MILESTONE_PHOTOS[selectedYearIdx] || ALL_GALLERY_PHOTOS[0];
+    MILESTONE_PHOTOS[safeIdx % MILESTONE_PHOTOS.length] || ALL_GALLERY_PHOTOS[0];
+
+  const handlePrevYear = () => {
+    setActiveMilestoneIdx(
+      (prev) => (prev - 1 + milestones.length) % milestones.length
+    );
+  };
+
+  const handleNextYear = () => {
+    setActiveMilestoneIdx((prev) => (prev + 1) % milestones.length);
+  };
 
   return (
-    <section className="am-section am-section-alt" id="tentang">
+    <section className="am-section" id="tentang">
       <div className="am-container">
-        <div className="am-section-header">
-          <span className="am-section-eyebrow">
-            <History size={13} /> Interactive Organization Story
-          </span>
-          <h2 className="am-section-title">
-            Time-Machine & Visi <span>Ambulu Mengajar</span>
-          </h2>
+        <div className="am-section-header am-header-split">
+          <div>
+            <span className="am-section-eyebrow">
+              <Sparkles size={13} /> Sejarah & Fondasi Gerakan
+            </span>
+            <h2 className="am-section-title">
+              Perjalanan & Visi <span>Ambulu Mengajar</span>
+            </h2>
+          </div>
           <p className="am-section-desc">
-            Telusuri perjalanan gerakan pengabdian pemuda Kecamatan Ambulu sejak
-            tahun 2011 hingga aksi nyata beasiswa dan bakti sosial hari ini.
+            Telusuri perkembangan gerakan dari tahun ke tahun serta empat pilar
+            misi utama yang menjadi landasan pengabdian kami di Kecamatan Ambulu.
           </p>
         </div>
 
-        {/* ==================================================================
-            PART 1: INTERACTIVE TIME-MACHINE EXPLORER (2011 -> KINI)
-            ================================================================== */}
-        <div className="am-timemachine-card">
+        {/* INTERACTIVE TIME-MACHINE EXPLORER */}
+        <div className="am-card am-timemachine-card">
           <div className="am-tm-header">
-            <div>
-              <span className="am-tm-eyebrow">
-                <Sparkles size={13} /> Mesin Waktu Perjalanan Organisasi
-              </span>
-              <h3>Pilih Tahun untuk Melihat Tonggak Sejarah</h3>
+            <div className="am-tm-label">
+              <Calendar size={16} />
+              <span>Jejak Perjalanan Organisasi</span>
             </div>
+
             <div className="am-tm-nav-arrows">
               <button
                 type="button"
-                onClick={() =>
-                  setSelectedYearIdx(
-                    (prev) =>
-                      (prev - 1 + ORG_INFO.milestones.length) %
-                      ORG_INFO.milestones.length
-                  )
-                }
-                aria-label="Tahun sebelumnya"
+                onClick={handlePrevYear}
+                className="am-tm-arrow"
+                aria-label="Era sebelumnya"
               >
-                <ChevronLeft size={18} />
+                <ChevronLeft size={17} /> Sebelumnya
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  setSelectedYearIdx(
-                    (prev) => (prev + 1) % ORG_INFO.milestones.length
-                  )
-                }
-                aria-label="Tahun berikutnya"
+                onClick={handleNextYear}
+                className="am-tm-arrow"
+                aria-label="Era selanjutnya"
               >
-                <ChevronRight size={18} />
+                Selanjutnya <ChevronRight size={17} />
               </button>
             </div>
           </div>
 
-          {/* Interactive Year Track */}
-          <div className="am-tm-track">
-            {ORG_INFO.milestones.map((ms, idx) => {
-              const isActive = idx === selectedYearIdx;
+          <div className="am-tm-track" role="tablist">
+            {milestones.map((ms, idx) => {
+              const isActive = idx === safeIdx;
               return (
                 <button
-                  key={ms.year}
+                  key={ms.id || ms.year || idx}
                   type="button"
+                  role="tab"
+                  aria-selected={isActive}
                   className={`am-tm-node ${isActive ? 'is-active' : ''}`}
-                  onClick={() => setSelectedYearIdx(idx)}
+                  onClick={() => setActiveMilestoneIdx(idx)}
                 >
-                  <span className="am-tm-node-year">{ms.year}</span>
-                  <span className="am-tm-node-badge">{ms.badge}</span>
+                  <span className="am-tm-year">{ms.year}</span>
+                  <span className="am-tm-badge">
+                    {ms.badge || `Tahap 0${idx + 1}`}
+                  </span>
                 </button>
               );
             })}
           </div>
 
-          {/* Active Milestone Stage */}
-          <div className="am-tm-stage">
-            <div className="am-tm-stage-text">
-              <div className="am-tm-stage-pills">
-                <span className="am-tm-year-pill">{currentMilestone.year}</span>
-                <span className="am-tm-phase-pill">
-                  {currentMilestone.badge}
-                </span>
-              </div>
-              <h4>{currentMilestone.title}</h4>
-              <p>{currentMilestone.desc}</p>
-
-              <div className="am-tm-story-quote">
-                <strong>Dampak Berkelanjutan:</strong>{' '}
-                {ORG_INFO.extendedAbout[selectedYearIdx % 3]}
-              </div>
-            </div>
-
-            <div
-              className="am-tm-stage-visual"
-              onClick={() =>
-                onOpenLightbox && onOpenLightbox(currentMilestonePhoto)
-              }
-              role="button"
-              tabIndex={0}
-              onKeyDown={(e) =>
-                e.key === 'Enter' &&
-                onOpenLightbox &&
-                onOpenLightbox(currentMilestonePhoto)
-              }
-            >
-              <img
-                src={currentMilestonePhoto.src}
-                alt={currentMilestonePhoto.caption}
-              />
-              <div className="am-tm-visual-caption">
-                <div>
-                  <strong>{currentMilestonePhoto.albumTitle}</strong>
-                  <span>{currentMilestonePhoto.caption}</span>
+          {currentMilestone && (
+            <div className="am-tm-stage">
+              <div className="am-tm-stage-text">
+                <div className="am-tm-stage-pill">
+                  Tonggak Sejarah • {currentMilestone.year}
                 </div>
-                <span className="am-tm-zoom-icon">
-                  <ZoomIn size={15} />
-                </span>
+                <h3>{currentMilestone.title}</h3>
+                <p>{currentMilestone.desc}</p>
+
+                <div className="am-tm-story-quote">
+                  <p>{ORG_INFO.extendedAbout[safeIdx % 3]}</p>
+                </div>
+              </div>
+
+              <div
+                className="am-tm-stage-media"
+                onClick={() =>
+                  onOpenLightbox && onOpenLightbox(currentMilestonePhoto)
+                }
+              >
+                <img
+                  src={currentMilestone.image || currentMilestonePhoto.src}
+                  alt={currentMilestone.title}
+                />
+                <div className="am-tm-media-caption">
+                  <span>Arsip Dokumentasi Kegiatan</span>
+                  <strong>{currentMilestonePhoto.albumTitle}</strong>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
-        {/* ==================================================================
-            PART 2: INTERACTIVE VISION, MISSION & CORE VALUES BENTO
-            ================================================================== */}
+        {/* VISION & INTERACTIVE MISSION PILLARS */}
         <div className="am-vm-bento-row">
-          {/* Left: Vision + Interactive Mission Selector */}
-          <div className="am-bento-tile am-vm-interactive-tile">
-            <div className="am-vision-banner">
-              <span className="am-vision-tag">
-                <Target size={14} /> Visi Utama Ambulu Mengajar
-              </span>
-              <p className="am-vision-statement">“{ORG_INFO.vision}”</p>
+          <div className="am-card am-vision-interactive-box">
+            <div className="am-card-icon-badge">
+              <Target size={22} />
+            </div>
+            <span className="am-box-tag">VISI ORGANISASI</span>
+            <h3>Cita-Cita Utama Ambulu Mengajar</h3>
+            <p className="am-vision-lead">{vision}</p>
+
+            <div className="am-mission-selector-title">
+              Pilih Pilar Misi Utama:
+            </div>
+            <div className="am-mission-pills">
+              {missions.map((m, idx) => (
+                <button
+                  key={m.id || idx}
+                  type="button"
+                  className={`am-mission-pill ${
+                    activeMissionIdx === idx ? 'is-active' : ''
+                  }`}
+                  onClick={() => setActiveMissionIdx(idx)}
+                >
+                  <span className="am-mpill-num">0{idx + 1}</span>
+                  <span>{m.title}</span>
+                </button>
+              ))}
             </div>
 
-            <div className="am-mission-selector-wrap">
-              <span className="am-sub-label">
-                4 Pilar Misi (Klik untuk melihat rincian fokus):
-              </span>
-              <div className="am-mission-pills-row">
-                {ORG_INFO.missions.map((m, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    className={`am-mission-pill-btn ${
-                      activeMissionIdx === idx ? 'is-active' : ''
-                    }`}
-                    onClick={() => setActiveMissionIdx(idx)}
-                  >
-                    <span>Misi 0{idx + 1}</span>
-                    <strong>{m.title}</strong>
-                  </button>
-                ))}
-              </div>
-
-              <div className="am-mission-active-detail">
-                <h4>
-                  Pilar Misi 0{activeMissionIdx + 1}:{' '}
-                  {ORG_INFO.missions[activeMissionIdx].title}
-                </h4>
-                <p>{ORG_INFO.missions[activeMissionIdx].desc}</p>
-              </div>
+            <div className="am-mission-active-detail">
+              <CheckCircle2 size={18} />
+              <p>
+                {missions[activeMissionIdx]?.desc || missions[0]?.desc || ''}
+              </p>
             </div>
           </div>
 
-          {/* Right: 4 Core Values Grid */}
           <div className="am-values-bento-col">
             {ORG_INFO.coreValues.map((val) => {
-              const IconComponent = VALUE_ICONS[val.id] || BookOpen;
+              const IconComp = VALUE_ICONS[val.id] || Sparkles;
               return (
-                <div key={val.id} className="am-bento-tile am-val-tile">
-                  <div className="am-val-tile-icon">
-                    <IconComponent size={20} />
-                  </div>
-                  <div>
+                <div key={val.id} className="am-card am-value-bento-card">
+                  <div className="am-val-top">
+                    <div className="am-value-icon">
+                      <IconComp size={19} />
+                    </div>
                     <h4>{val.title}</h4>
-                    <p>{val.desc}</p>
                   </div>
+                  <p>{val.desc}</p>
                 </div>
               );
             })}

@@ -1,297 +1,390 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Users,
-  GraduationCap,
+  BookOpen,
   HeartHandshake,
   Share2,
-  Sparkles,
-  Briefcase,
   CheckCircle2,
+  Sparkles,
+  Award,
   Compass,
-  ZoomIn,
-  ArrowRight,
+  RotateCcw,
 } from 'lucide-react';
 import { DIVISIONS, ALL_GALLERY_PHOTOS } from '../data/ambuluData';
 
-const DIVISION_ICONS = {
+const DIV_ICONS = {
   hrd: Users,
-  aml: GraduationCap,
+  aml: BookOpen,
   amf: HeartHandshake,
   kominfo: Share2,
 };
 
-const QUIZ_OPTIONS = [
+const DIV_GALLERY_MAP = {
+  hrd: [ALL_GALLERY_PHOTOS[3], ALL_GALLERY_PHOTOS[4]],
+  aml: [ALL_GALLERY_PHOTOS[3], ALL_GALLERY_PHOTOS[4], ALL_GALLERY_PHOTOS[5]],
+  amf: [
+    ALL_GALLERY_PHOTOS[0],
+    ALL_GALLERY_PHOTOS[1],
+    ALL_GALLERY_PHOTOS[6],
+    ALL_GALLERY_PHOTOS[8],
+  ],
+  kominfo: [ALL_GALLERY_PHOTOS[2], ALL_GALLERY_PHOTOS[10]],
+};
+
+const MATCHER_QUESTIONS = [
   {
-    id: 'q-hrd',
-    divId: 'hrd',
-    label: 'Membangun tim, rekrutmen relawan & menjalin relasi sekolah/mitra',
-    badge: 'Cocok ke Divisi HRD',
+    q: 'Aktivitas mana yang paling membuatmu bersemangat saat berkegiatan sosial?',
+    options: [
+      {
+        label: 'Merekrut teman baru, menjaga kekompakan tim & membangun relasi',
+        div: 'hrd',
+      },
+      {
+        label: 'Mengajar di kelas, berbagi tips kuliah & memotivasi siswa SMA',
+        div: 'aml',
+      },
+      {
+        label: 'Mengelola program beasiswa pelajar & bakti sosial panti asuhan',
+        div: 'amf',
+      },
+      {
+        label: 'Mendesain konten kreatif, memotret kegiatan & mengelola medsos',
+        div: 'kominfo',
+      },
+    ],
   },
   {
-    id: 'q-aml',
-    divId: 'aml',
-    label: 'Mengajar di kelas, memotivasi siswa SMA & roadshow Goes To School',
-    badge: 'Cocok ke Divisi AML',
+    q: 'Keahlian apa yang paling ingin kamu kembangkan di Ambulu Mengajar?',
+    options: [
+      { label: 'Leadership, manajemen SDM & komunikasi organisasi', div: 'hrd' },
+      { label: 'Public speaking, kurikulum belajar & manajemen acara', div: 'aml' },
+      { label: 'Fundraising sosial, manajemen beasiswa & empati sosial', div: 'amf' },
+      { label: 'Desain grafis, fotografi/videografi & copywriting', div: 'kominfo' },
+    ],
   },
   {
-    id: 'q-amf',
-    divId: 'amf',
-    label: 'Mengelola beasiswa SMA, info beasiswa & aksi bakti sosial panti',
-    badge: 'Cocok ke Divisi AMF',
-  },
-  {
-    id: 'q-kominfo',
-    divId: 'kominfo',
-    label: 'Desain grafis, dokumentasi foto/video & kelola medsos @ambulumengajar',
-    badge: 'Cocok ke Divisi KOMINFO',
+    q: 'Program mana yang paling ingin kamu ikuti secara langsung?',
+    options: [
+      { label: 'Open Recruitment, Upgrading & Gathering Relawan', div: 'hrd' },
+      { label: 'Ambulu Mengajar Goes To School ke SMA/SMK/MA', div: 'aml' },
+      { label: 'AMF X Pembidik Misi, Beasiswa SMA & Bakti Sosial', div: 'amf' },
+      { label: 'Produksi Konten Instagram, YouTube & Dokumentasi', div: 'kominfo' },
+    ],
   },
 ];
 
 export default function DivisionsSection({
+  backendState,
   selectedDivId,
   onSelectDivision,
   onOpenLightbox,
 }) {
-  const [activeDivId, setActiveDivId] = useState(selectedDivId || 'hrd');
-  const [quizSelected, setQuizSelected] = useState(null);
+  const divisions =
+    backendState?.divisions && backendState.divisions.length > 0
+      ? backendState.divisions
+      : DIVISIONS;
 
-  // Sync if parent CommandPalette changes selectedDivId
-  React.useEffect(() => {
-    if (selectedDivId) setActiveDivId(selectedDivId);
+  const [activeId, setActiveId] = useState(selectedDivId || divisions[0]?.id || 'hrd');
+  const [quizStep, setQuizStep] = useState(0);
+  const [quizAnswers, setQuizAnswers] = useState([]);
+  const [quizResult, setQuizResult] = useState(null);
+
+  useEffect(() => {
+    if (selectedDivId) {
+      setActiveId(selectedDivId);
+    }
   }, [selectedDivId]);
 
-  const handleChooseDiv = (id) => {
-    setActiveDivId(id);
+  const activeDiv =
+    divisions.find((d) => d.id === activeId) || divisions[0];
+  const ActiveIcon = DIV_ICONS[activeDiv?.id] || Users;
+  const relatedPhotos =
+    DIV_GALLERY_MAP[activeDiv?.id] || ALL_GALLERY_PHOTOS.slice(0, 2);
+
+  const handleSelectDiv = (id) => {
+    setActiveId(id);
     if (onSelectDivision) onSelectDivision(id);
   };
 
-  const activeDivision =
-    DIVISIONS.find((d) => d.id === activeDivId) || DIVISIONS[0];
-  const ActiveIcon = DIVISION_ICONS[activeDivision.id] || Users;
-
-  // Related documentation photos for the active division
-  const relatedPhotos = React.useMemo(() => {
-    if (activeDivision.id === 'aml') {
-      return ALL_GALLERY_PHOTOS.filter((p) => p.albumId === 'gallery01');
+  const handleAnswerQuiz = (divCode) => {
+    const next = [...quizAnswers, divCode];
+    if (quizStep + 1 < MATCHER_QUESTIONS.length) {
+      setQuizAnswers(next);
+      setQuizStep(quizStep + 1);
+    } else {
+      const counts = next.reduce((acc, c) => {
+        acc[c] = (acc[c] || 0) + 1;
+        return acc;
+      }, {});
+      const winner = Object.keys(counts).sort(
+        (a, b) => counts[b] - counts[a]
+      )[0];
+      setQuizResult(winner);
+      handleSelectDiv(winner);
     }
-    if (activeDivision.id === 'amf') {
-      return ALL_GALLERY_PHOTOS.filter((p) =>
-        ['gallery05', 'gallery02', 'gallery03', 'gallery04'].includes(p.albumId)
-      ).slice(0, 3);
-    }
-    return ALL_GALLERY_PHOTOS.slice(0, 3);
-  }, [activeDivision.id]);
+  };
 
-  const textIds = {
-    hrd: 'text02',
-    aml: 'text09',
-    amf: 'text10',
-    kominfo: 'text11',
+  const resetQuiz = () => {
+    setQuizStep(0);
+    setQuizAnswers([]);
+    setQuizResult(null);
   };
-  const listIds = {
-    hrd: 'list01',
-    aml: 'list02',
-    amf: 'list03',
-    kominfo: 'list04',
-  };
+
+  const matchedDivObj = quizResult
+    ? divisions.find((d) => d.id === quizResult)
+    : null;
 
   return (
-    <section className="am-section" id="divisiambulumengajar">
+    <section
+      className="am-section am-section-alt"
+      id="divisiambulumengajar"
+      aria-labelledby="divisi-heading"
+    >
       <div className="am-container">
-        <div className="am-section-header">
-          <span className="am-section-eyebrow">
-            <Compass size={13} /> Interactive Division Studio
-          </span>
-          <h2 id="text05" className="am-section-title">
-            STUDIO 4 <span>DIVISI</span> RESMI
-          </h2>
+        <div className="am-section-header am-header-split">
+          <div>
+            <span className="am-section-eyebrow">
+              <Sparkles size={13} /> Struktur Organisasi
+            </span>
+            <h2 className="am-section-title" id="divisi-heading">
+              Empat Divisi <span>Ambulu Mengajar</span>
+            </h2>
+          </div>
           <p className="am-section-desc">
-            Klik salah satu dari empat divisi utama{' '}
-            <strong>Ambulu Mengajar</strong> di sebelah kiri untuk membuka
-            rincian tugas resmi Carrd, program kerja, serta dokumentasi terkait
-            di panggung interaktif sebelah kanan.
+            Pilih masing-masing divisi pada panel di bawah untuk melihat mandat
+            utama, fokus tanggung jawab, serta program kerja unggulannya.
           </p>
         </div>
 
-        {/* ==================================================================
-            MASTER-DETAIL INTERACTIVE DIVISION COMMAND STUDIO
-            ================================================================== */}
-        <div className="am-studio-layout">
-          {/* LEFT RAIL: 4 Official Divisions Selector (Retains all Carrd IDs) */}
-          <div className="am-studio-rail">
-            {DIVISIONS.map((div) => {
-              const IconComp = DIVISION_ICONS[div.id] || Users;
-              const isSelected = div.id === activeDivision.id;
-              return (
-                <div
-                  key={div.id}
-                  className={`am-rail-card ${isSelected ? 'is-active' : ''}`}
-                  onClick={() => handleChooseDiv(div.id)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) =>
-                    e.key === 'Enter' && handleChooseDiv(div.id)
-                  }
-                >
-                  <div className="am-rail-card-top">
+        {/* MASTER-DETAIL COMMAND STUDIO */}
+        {activeDiv && (
+          <div className="am-studio-layout">
+            <div
+              className="am-studio-rail"
+              role="tablist"
+              aria-label="Pilih Divisi Ambulu Mengajar"
+            >
+              <span className="am-studio-rail-label">PILIH DIVISI UTAMA</span>
+              {divisions.map((div, idx) => {
+                const IconComp = DIV_ICONS[div.id] || Users;
+                const isSelected = div.id === activeDiv.id;
+                return (
+                  <button
+                    key={div.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={isSelected}
+                    className={`am-rail-btn ${isSelected ? 'is-active' : ''}`}
+                    onClick={() => handleSelectDiv(div.id)}
+                    style={{ '--div-color': div.accentColor }}
+                  >
                     <div className="am-rail-icon">
                       <IconComp size={20} />
                     </div>
-                    <span className="am-rail-code">
-                      {div.number} • DIVISI {div.code}
-                    </span>
-                  </div>
-
-                  <h3 id={textIds[div.id]} className="am-rail-title">
-                    {div.exactTitle}
-                  </h3>
-
-                  {/* Exact Carrd Bullet Points (#list01 - #list04) */}
-                  <ul id={listIds[div.id]} className="am-rail-carrd-list">
-                    {div.carrdPoints.map((pt, i) => (
-                      <li key={i}>{pt}</li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* RIGHT STAGE: Active Division Deep-Dive Workspace */}
-          <div className="am-studio-stage">
-            <div className="am-stage-banner">
-              <div className="am-stage-banner-left">
-                <div className="am-stage-big-icon">
-                  <ActiveIcon size={30} />
-                </div>
-                <div>
-                  <span className="am-stage-badge">
-                    Divisi Aktif • {activeDivision.fullName}
-                  </span>
-                  <h3>{activeDivision.exactTitle}</h3>
-                  <p className="am-stage-tagline">{activeDivision.tagline}</p>
-                </div>
-              </div>
-              <span className="am-stage-watermark">
-                {activeDivision.number}
-              </span>
-            </div>
-
-            <p className="am-stage-description">{activeDivision.description}</p>
-
-            {/* Exact Carrd Responsibilities Highlight */}
-            <div className="am-stage-carrd-box">
-              <span className="am-stage-sub-label">
-                <Sparkles size={14} /> Mandat Utama Divisi (Sesuai
-                ambulumengajar.carrd.co):
-              </span>
-              <div className="am-stage-carrd-grid">
-                {activeDivision.carrdPoints.map((pt, idx) => (
-                  <div key={idx} className="am-stage-mandate-pill">
-                    <CheckCircle2 size={17} />
-                    <strong>{pt}</strong>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* 4 Key Programs of Selected Division */}
-            <div className="am-stage-programs-block">
-              <span className="am-stage-sub-label">
-                <Briefcase size={14} /> Rincian Program Kerja & Aktivitas{' '}
-                {activeDivision.shortTitle}:
-              </span>
-              <div className="am-stage-prog-grid">
-                {activeDivision.programs.map((prog, idx) => (
-                  <div key={idx} className="am-stage-prog-card">
-                    <span className="am-prog-num">0{idx + 1}</span>
-                    <p>{prog}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Related Documentation Preview Strip */}
-            <div className="am-stage-photos-block">
-              <div className="am-stage-sub-row">
-                <span className="am-stage-sub-label">
-                  Sorotan Dokumentasi Terkait {activeDivision.shortTitle}:
-                </span>
-                <div className="am-stage-skill-chips">
-                  {activeDivision.skills.map((s, i) => (
-                    <span key={i} className="am-mini-skill">
-                      {s}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="am-stage-photo-strip">
-                {relatedPhotos.map((ph) => (
-                  <div
-                    key={ph.id}
-                    className="am-stage-photo-thumb"
-                    onClick={() => onOpenLightbox && onOpenLightbox(ph)}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) =>
-                      e.key === 'Enter' &&
-                      onOpenLightbox &&
-                      onOpenLightbox(ph)
-                    }
-                  >
-                    <img src={ph.src} alt={ph.caption} />
-                    <div className="am-stage-thumb-overlay">
-                      <span>{ph.albumTitle}</span>
-                      <ZoomIn size={14} />
+                    <div className="am-rail-info">
+                      <span className="am-rail-code">
+                        0{idx + 1} • {div.code}
+                      </span>
+                      <strong>{div.fullName}</strong>
+                      <small>{div.tagline}</small>
                     </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="am-card am-studio-stage" role="tabpanel">
+              <div className="am-stage-top">
+                <div className="am-stage-badge-row">
+                  <span
+                    className="am-stage-code-pill"
+                    style={{
+                      background: `${activeDiv.accentColor}22`,
+                      color: activeDiv.accentColor,
+                      borderColor: `${activeDiv.accentColor}55`,
+                    }}
+                  >
+                    DIVISI {activeDiv.code}
+                  </span>
+                  <span className="am-stage-tagline">{activeDiv.tagline}</span>
+                </div>
+
+                <div className="am-stage-title-row">
+                  <div
+                    className="am-stage-icon-big"
+                    style={{
+                      background: `${activeDiv.accentColor}1f`,
+                      color: activeDiv.accentColor,
+                    }}
+                  >
+                    <ActiveIcon size={28} />
                   </div>
-                ))}
+                  <div>
+                    <h3 className="am-stage-title">{activeDiv.exactTitle}</h3>
+                    <p className="am-stage-desc">{activeDiv.description}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="am-stage-carrd-box">
+                <div className="am-stage-subhead">
+                  <CheckCircle2 size={16} />
+                  <span>Fokus & Tanggung Jawab Utama Divisi {activeDiv.code}</span>
+                </div>
+                <ul className="am-stage-carrd-grid">
+                  {(activeDiv.carrdPoints || []).map((pt, i) => (
+                    <li key={i} className="am-stage-carrd-item">
+                      <span className="am-carrd-bullet">0{i + 1}</span>
+                      <p>{pt}</p>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="am-stage-programs-box">
+                <div className="am-stage-subhead">
+                  <Award size={16} />
+                  <span>Program Kerja & Implementasi Lapangan</span>
+                </div>
+                <div className="am-stage-prog-grid">
+                  {(activeDiv.programs || []).map((prog, i) => {
+                    const label =
+                      typeof prog === 'string'
+                        ? prog
+                        : `${prog.name}${prog.desc ? ` — ${prog.desc}` : ''}`;
+                    return (
+                      <div key={i} className="am-stage-prog-card">
+                        <strong>Program 0{i + 1}</strong>
+                        <p>{label}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="am-stage-bottom-row">
+                <div className="am-stage-skills">
+                  <span className="am-stage-mini-label">
+                    Kompetensi & Keahlian Divisi:
+                  </span>
+                  <div className="am-skill-tags">
+                    {(activeDiv.skills || []).map((sk) => (
+                      <span key={sk} className="am-skill-tag">
+                        {sk}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="am-stage-photos">
+                  <span className="am-stage-mini-label">
+                    Dokumentasi Terkait Divisi {activeDiv.code}:
+                  </span>
+                  <div className="am-stage-photo-strip">
+                    {relatedPhotos.map((ph) => (
+                      <button
+                        key={ph.id}
+                        type="button"
+                        className="am-stage-photo-thumb"
+                        onClick={() => onOpenLightbox && onOpenLightbox(ph)}
+                        title={ph.albumTitle}
+                      >
+                        <img src={ph.src} alt={ph.albumTitle} />
+                        <span>Perbesar</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* ==================================================================
-            INTERACTIVE VOLUNTEER DIVISION MATCHER ("KUIS COCOK DIVISI MANA?")
-            ================================================================== */}
-        <div className="am-bento-tile am-matcher-quiz-bar">
+        {/* INTERACTIVE VOLUNTEER DIVISION MATCHER */}
+        <div className="am-card am-matcher-card">
           <div className="am-matcher-header">
             <div>
-              <span className="am-tm-eyebrow">
-                <Sparkles size={13} /> Simulasi Interaktif Calon Relawan
+              <span className="am-pill-badge">
+                <Compass size={13} /> Simulasi Interaktif Calon Relawan
               </span>
-              <h4>Ingin Bergabung? Pilih Aktivitas yang Paling Kamu Sukai:</h4>
+              <h3>Ingin Bergabung? Cek Divisi yang Paling Cocok Untukmu!</h3>
+              <p>
+                Jawab 3 pertanyaan singkat berikut untuk melihat rekomendasi
+                divisi yang paling sesuai dengan minat dan keahlianmu.
+              </p>
             </div>
-            {quizSelected && (
-              <a href="#kontak" className="am-btn am-btn-primary am-btn-sm">
-                Daftar Relawan Divisi {quizSelected.toUpperCase()}{' '}
-                <ArrowRight size={14} />
-              </a>
+            {quizResult && (
+              <button
+                type="button"
+                onClick={resetQuiz}
+                className="am-btn am-btn-outline am-btn-sm"
+              >
+                <RotateCcw size={14} /> Ulangi Simulasi
+              </button>
             )}
           </div>
 
-          <div className="am-matcher-options-grid">
-            {QUIZ_OPTIONS.map((opt) => {
-              const isChosen = quizSelected === opt.divId;
-              return (
-                <button
-                  key={opt.id}
-                  type="button"
-                  className={`am-matcher-option-btn ${
-                    isChosen ? 'is-chosen' : ''
-                  }`}
-                  onClick={() => {
-                    setQuizSelected(opt.divId);
-                    handleChooseDiv(opt.divId);
-                  }}
-                >
-                  <span className="am-matcher-badge">{opt.badge}</span>
-                  <p>{opt.label}</p>
-                </button>
-              );
-            })}
-          </div>
+          {!quizResult ? (
+            <div className="am-matcher-body">
+              <div className="am-matcher-progress">
+                <span>
+                  Pertanyaan {quizStep + 1} dari {MATCHER_QUESTIONS.length}
+                </span>
+                <div className="am-matcher-bar">
+                  <div
+                    style={{
+                      width: `${
+                        ((quizStep + 1) / MATCHER_QUESTIONS.length) * 100
+                      }%`,
+                    }}
+                  />
+                </div>
+              </div>
+
+              <h4 className="am-matcher-q">
+                {MATCHER_QUESTIONS[quizStep].q}
+              </h4>
+
+              <div className="am-matcher-options-grid">
+                {MATCHER_QUESTIONS[quizStep].options.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    className="am-matcher-opt-btn"
+                    onClick={() => handleAnswerQuiz(opt.div)}
+                  >
+                    <span className="am-opt-letter">
+                      {String.fromCharCode(65 + idx)}
+                    </span>
+                    <span>{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : (
+            matchedDivObj && (
+              <div className="am-matcher-result">
+                <div className="am-result-badge">REKOMENDASI DIVISI</div>
+                <h4>
+                  Kamu Sangat Cocok di{' '}
+                  <span>{matchedDivObj.exactTitle}</span>!
+                </h4>
+                <p>{matchedDivObj.description}</p>
+                <div className="am-result-actions">
+                  <a href="#kontak" className="am-btn am-btn-primary am-btn-sm">
+                    Hubungi Tim Kami untuk Bergabung
+                  </a>
+                  <button
+                    type="button"
+                    onClick={resetQuiz}
+                    className="am-btn am-btn-outline am-btn-sm"
+                  >
+                    Coba Pilihan Lain
+                  </button>
+                </div>
+              </div>
+            )
+          )}
         </div>
       </div>
     </section>
