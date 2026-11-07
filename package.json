@@ -1,0 +1,22 @@
+{
+  "name": "ambulu-mengajar-company-profile",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "Website Company Profile Resmi Ambulu Mengajar — Organisasi Non-Profit Pendidikan & Sosial Kecamatan Ambulu, Kabupaten Jember",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "lucide-react": "^0.460.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.3",
+    "vite": "^5.4.10"
+  }
+}
+
