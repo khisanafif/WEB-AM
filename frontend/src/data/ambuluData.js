@@ -487,7 +487,139 @@ export const FAQS = [
   },
   {
     q: 'Bagaimana cara berdonasi untuk program Bakti Sosial (AMF Baksos / KURMA) atau Beasiswa?',
-    a: 'Masyarakat dan donatur dapat menyalurkan bantuan berupa donasi dana (melalui rekening resmi BRI, BCA, BNI, atau Dompet Digital yang tertera pada bagian Event & Donasi) maupun bantuan barang seperti buku tulis, pakaian layak pakai, dan sembako dengan menghubungi narahubung resmi kami.',
+    a: 'Masyarakat dan donatur dapat menyalurkan bantuan berupa donasi dana (melalui rekening resmi BRI, BCA, BNI, atau Dompet Digital yang tertera pada bagian Event & Donasi) maupun bantuan barang seperti buku tulis, pakaian layak pakai, dan sembako saat periode Open Donation dibuka oleh Admin.',
   },
 ];
+
+// State Default untuk Backend & Sinkronisasi Admin (KURMA 2022 berstatus Selesai / Terlaksana)
+export const DEFAULT_BACKEND_STATE = {
+  events: [
+    {
+      id: 'evt-kurma-2022',
+      title: 'KURMA — Kunjungan Ramadhan: Panti Asuhan "Immamul Mutaqin"',
+      subtitle: 'Bakti Sosial & Santunan Ramadhan — Ambulu Mengajar Filantropi (AMF)',
+      category: 'Bakti Sosial (AMF)',
+      period: '14 – 22 April 2022',
+      eventDate: '2022-04-22',
+      location: 'Panti Asuhan Immamul Mutaqin, Ambulu, Jember',
+      status: 'completed', // 'ongoing' | 'upcoming' | 'completed'
+      isDonationOpen: false,
+      poster: 'assets/images/image04.jpg',
+      badgeLogo: 'assets/images/image03.png',
+      targetAmount: 10000000,
+      collectedAmount: 10000000,
+      donorCount: 68,
+      description:
+        'Kegiatan penggalangan donasi terbuka dan kunjungan bakti sosial Ramadhan bersama adik-adik Panti Asuhan Immamul Mutaqin yang diselenggarakan oleh Divisi Ambulu Mengajar Filantropi (AMF).',
+      completionReport:
+        'Kegiatan KURMA (Kunjungan Ramadhan) dan penyaluran donasi untuk Panti Asuhan "Immamul Mutaqin" telah SELESAI dilaksanakan pada 22 April 2022. Seluruh donasi uang tunai, sembako, dan pakaian layak pakai telah disalurkan 100% kepada penerima manfaat.',
+      deliverables: [
+        'Penyaluran donasi uang tunai & santunan pendidikan',
+        'Paket sembako & kebutuhan pokok panti asuhan',
+        'Pakaian layak pakai & perlengkapan ibadah',
+        'Buka puasa bersama & kelas motivasi Ramadhan',
+      ],
+      registrationUrl: '',
+    },
+    {
+      id: 'evt-amf-pembidik-misi',
+      title: 'AMF X Pembidik Misi — Sosialisasi & Pendampingan Beasiswa',
+      subtitle: 'Kolaborasi Akses Beasiswa Perguruan Tinggi & SMA',
+      category: 'Beasiswa & Pendidikan (AMF)',
+      period: 'Program Tahunan Terlaksana',
+      eventDate: '2022-06-15',
+      location: 'SMA/SMK/MA se-Kecamatan Ambulu, Jember',
+      status: 'completed',
+      isDonationOpen: false,
+      poster: 'assets/images/gallery05/eea98a03.jpg',
+      badgeLogo: 'assets/images/image03.png',
+      targetAmount: 0,
+      collectedAmount: 0,
+      donorCount: 0,
+      description:
+        'Kolaborasi strategis Ambulu Mengajar Filantropi (AMF) bersama Pembidik Misi untuk memberikan edukasi beasiswa, bedah jalur masuk perguruan tinggi, serta pendampingan siswa berprestasi.',
+      completionReport:
+        'Program sosialisasi AMF X Pembidik Misi telah terlaksana dengan antusiasme tinggi dari pelajar SMA/SMK sederajat di Ambulu. Nantikan jadwal batch berikutnya yang akan diumumkan oleh Admin.',
+      deliverables: [
+        'Talkshow & bedah beasiswa kuliah (KIP-K / Beasiswa Unggulan)',
+        'Sesi mentoring bersama mahasiswa asal Ambulu',
+        'Pendampingan pemberkasan & motivasi studi lanjut',
+      ],
+      registrationUrl: '',
+    },
+    {
+      id: 'evt-goes-to-school-next',
+      title: 'Ambulu Mengajar Goes To School & Open Recruitment Relawan',
+      subtitle: 'Sosialisasi Kampus & Rekrutmen Pengurus Baru (AML & HRD)',
+      category: 'Sosialisasi & Rekrutmen (AML / HRD)',
+      period: 'Segera Hadir (Menunggu Pengumuman Admin)',
+      eventDate: '2026-08-01',
+      location: 'Kecamatan Ambulu, Kabupaten Jember',
+      status: 'upcoming',
+      isDonationOpen: false,
+      poster: 'assets/images/gallery01/4a1c84c9.jpg',
+      badgeLogo: 'assets/images/image03.png',
+      targetAmount: 0,
+      collectedAmount: 0,
+      donorCount: 0,
+      description:
+        'Agenda tahunan kunjungan ke sekolah-sekolah menengah atas di Kecamatan Ambulu serta pembukaan rekrutmen relawan mahasiswa baru Ambulu Mengajar.',
+      completionReport:
+        'Event ini berstatus Segera Hadir (Upcoming). Admin dapat mengubah status menjadi "Sedang Berlangsung" saat pendaftaran resmi dibuka.',
+      deliverables: [
+        'Roadshow sosialisasi dunia perkuliahan ke SMA/SMK/MA',
+        'Open Recruitment staf divisi HRD, AML, AMF, dan KOMINFO',
+        'Penjaringan calon penerima Beasiswa SMA Ambulu Mengajar',
+      ],
+      registrationUrl: 'https://linktr.ee/AmbuluMengajar',
+    },
+  ],
+  donationConfig: {
+    isOpen: false,
+    campaignTitle: 'Program Donasi Bakti Sosial & Beasiswa AMF',
+    statusBadgeText: 'DONASI DITUTUP — EVENT TELAH SELESAI',
+    closedNoticeTitle: 'Penggalangan Donasi Event KURMA Telah Selesai',
+    closedNoticeDesc:
+      'Terima kasih atas antusiasme dan kedermawanan para donatur. Program Open Donation KURMA (Panti Asuhan Immamul Mutaqin) telah resmi ditutup dan disalurkan sepenuhnya. Saat ini tidak ada penggalangan donasi terbuka. Pengurus dapat mengaktifkan kampanye donasi baru kapan saja melalui Panel Admin.',
+    activeNoticeDesc:
+      'Salurkan dukungan terbaik Anda untuk program Beasiswa SMA & Bakti Sosial Ambulu Mengajar Filantropi (AMF) melalui rekening resmi di bawah ini.',
+    bankAccounts: FEATURED_EVENT.bankAccounts.map((b, i) => ({
+      ...b,
+      id: `bank-${i + 1}`,
+      isActive: true,
+    })),
+    contactPersons: FEATURED_EVENT.contactPersons.map((cp, i) => ({
+      ...cp,
+      id: `cp-${i + 1}`,
+    })),
+  },
+  donationsLog: [
+    {
+      id: 'don-001',
+      donorName: 'Hamba Allah (Alumni SMAN Ambulu)',
+      eventId: 'evt-kurma-2022',
+      eventTitle: 'KURMA — Panti Asuhan Immamul Mutaqin',
+      type: 'Donasi Dana Tunai',
+      amount: 500000,
+      bankTarget: 'BRI',
+      message: 'Semoga berkah untuk adik-adik di Panti Asuhan Immamul Mutaqin.',
+      status: 'verified',
+      createdAt: '2022-04-18T09:30:00.000Z',
+    },
+    {
+      id: 'don-002',
+      donorName: 'Keluarga Besar Relawan AM',
+      eventId: 'evt-kurma-2022',
+      eventTitle: 'KURMA — Panti Asuhan Immamul Mutaqin',
+      type: 'Sembako & Pakaian Layak Pakai',
+      amount: 1250000,
+      bankTarget: 'BCA',
+      message: 'Titip amanah paket sembako Ramadhan.',
+      status: 'verified',
+      createdAt: '2022-04-20T14:15:00.000Z',
+    },
+  ],
+  updatedAt: new Date().toISOString(),
+};
+
 

@@ -1,0 +1,13 @@
+{
+  "name": "ambulu-mengajar-backend",
+  "version": "1.0.0",
+  "description": "Standalone Vercel Serverless & Node.js Backend API for Ambulu Mengajar",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node api/index.js",
+    "dev": "node api/index.js"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
