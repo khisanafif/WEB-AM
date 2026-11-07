@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Target,
   CheckCircle2,
@@ -8,8 +8,6 @@ import {
   Users,
   BookOpen,
   Award,
-  ChevronRight,
-  ChevronLeft,
 } from 'lucide-react';
 import { ORG_INFO, ALL_GALLERY_PHOTOS } from '../data/ambuluData';
 
@@ -33,33 +31,12 @@ export default function AboutSection({ backendState, onOpenLightbox }) {
     backendState?.milestones && backendState.milestones.length > 0
       ? backendState.milestones
       : ORG_INFO.milestones;
-  const vision =
-    backendState?.visionMission?.vision || ORG_INFO.vision;
+  const vision = backendState?.visionMission?.vision || ORG_INFO.vision;
   const missions =
     backendState?.visionMission?.missions &&
     backendState.visionMission.missions.length > 0
       ? backendState.visionMission.missions
       : ORG_INFO.missions;
-
-  const [activeMilestoneIdx, setActiveMilestoneIdx] = useState(
-    Math.max(0, milestones.length - 1)
-  );
-  const [activeMissionIdx, setActiveMissionIdx] = useState(0);
-
-  const safeIdx = Math.min(activeMilestoneIdx, milestones.length - 1);
-  const currentMilestone = milestones[safeIdx] || milestones[0];
-  const currentMilestonePhoto =
-    MILESTONE_PHOTOS[safeIdx % MILESTONE_PHOTOS.length] || ALL_GALLERY_PHOTOS[0];
-
-  const handlePrevYear = () => {
-    setActiveMilestoneIdx(
-      (prev) => (prev - 1 + milestones.length) % milestones.length
-    );
-  };
-
-  const handleNextYear = () => {
-    setActiveMilestoneIdx((prev) => (prev + 1) % milestones.length);
-  };
 
   return (
     <section className="am-section" id="tentang">
@@ -74,127 +51,34 @@ export default function AboutSection({ backendState, onOpenLightbox }) {
             </h2>
           </div>
           <p className="am-section-desc">
-            Telusuri perkembangan gerakan dari tahun ke tahun serta empat pilar
-            misi utama yang menjadi landasan pengabdian kami di Kecamatan Ambulu.
+            Jejak perjalanan gerakan dari masa ke masa serta empat pilar misi
+            utama yang menjadi landasan pengabdian kami di Kecamatan Ambulu.
           </p>
         </div>
 
-        {/* INTERACTIVE TIME-MACHINE EXPLORER */}
-        <div className="am-card am-timemachine-card">
-          <div className="am-tm-header">
-            <div className="am-tm-label">
-              <Calendar size={16} />
-              <span>Jejak Perjalanan Organisasi</span>
-            </div>
-
-            <div className="am-tm-nav-arrows">
-              <button
-                type="button"
-                onClick={handlePrevYear}
-                className="am-tm-arrow"
-                aria-label="Era sebelumnya"
-              >
-                <ChevronLeft size={17} /> Sebelumnya
-              </button>
-              <button
-                type="button"
-                onClick={handleNextYear}
-                className="am-tm-arrow"
-                aria-label="Era selanjutnya"
-              >
-                Selanjutnya <ChevronRight size={17} />
-              </button>
-            </div>
-          </div>
-
-          <div className="am-tm-track" role="tablist">
-            {milestones.map((ms, idx) => {
-              const isActive = idx === safeIdx;
-              return (
-                <button
-                  key={ms.id || ms.year || idx}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  className={`am-tm-node ${isActive ? 'is-active' : ''}`}
-                  onClick={() => setActiveMilestoneIdx(idx)}
-                >
-                  <span className="am-tm-year">{ms.year}</span>
-                  <span className="am-tm-badge">
-                    {ms.badge || `Tahap 0${idx + 1}`}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {currentMilestone && (
-            <div className="am-tm-stage">
-              <div className="am-tm-stage-text">
-                <div className="am-tm-stage-pill">
-                  Tonggak Sejarah • {currentMilestone.year}
-                </div>
-                <h3>{currentMilestone.title}</h3>
-                <p>{currentMilestone.desc}</p>
-
-                <div className="am-tm-story-quote">
-                  <p>{ORG_INFO.extendedAbout[safeIdx % 3]}</p>
-                </div>
-              </div>
-
-              <div
-                className="am-tm-stage-media"
-                onClick={() =>
-                  onOpenLightbox && onOpenLightbox(currentMilestonePhoto)
-                }
-              >
-                <img
-                  src={currentMilestone.image || currentMilestonePhoto.src}
-                  alt={currentMilestone.title}
-                />
-                <div className="am-tm-media-caption">
-                  <span>Arsip Dokumentasi Kegiatan</span>
-                  <strong>{currentMilestonePhoto.albumTitle}</strong>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* VISION & INTERACTIVE MISSION PILLARS */}
+        {/* VISION & ALL 4 MISSIONS DIRECTLY OPEN IN UNIFIED BENTO LAYOUT */}
         <div className="am-vm-bento-row">
           <div className="am-card am-vision-interactive-box">
             <div className="am-card-icon-badge">
               <Target size={22} />
             </div>
-            <span className="am-box-tag">VISI ORGANISASI</span>
+            <span className="am-box-tag">VISI & MISI ORGANISASI</span>
             <h3>Cita-Cita Utama Ambulu Mengajar</h3>
             <p className="am-vision-lead">{vision}</p>
 
             <div className="am-mission-selector-title">
-              Pilih Pilar Misi Utama:
+              Empat Pilar Misi Utama:
             </div>
-            <div className="am-mission-pills">
+            <div className="am-missions-open-list">
               {missions.map((m, idx) => (
-                <button
-                  key={m.id || idx}
-                  type="button"
-                  className={`am-mission-pill ${
-                    activeMissionIdx === idx ? 'is-active' : ''
-                  }`}
-                  onClick={() => setActiveMissionIdx(idx)}
-                >
-                  <span className="am-mpill-num">0{idx + 1}</span>
-                  <span>{m.title}</span>
-                </button>
+                <div key={m.id || idx} className="am-mission-open-card">
+                  <div className="am-mission-open-head">
+                    <span className="am-mpill-num">0{idx + 1}</span>
+                    <strong>{m.title}</strong>
+                  </div>
+                  <p>{m.desc}</p>
+                </div>
               ))}
-            </div>
-
-            <div className="am-mission-active-detail">
-              <CheckCircle2 size={18} />
-              <p>
-                {missions[activeMissionIdx]?.desc || missions[0]?.desc || ''}
-              </p>
             </div>
           </div>
 
@@ -210,6 +94,46 @@ export default function AboutSection({ backendState, onOpenLightbox }) {
                     <h4>{val.title}</h4>
                   </div>
                   <p>{val.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* MILESTONES / TIMELINE DIRECTLY OPEN CARDS */}
+        <div className="am-card am-timemachine-card">
+          <div className="am-tm-header">
+            <div className="am-tm-label">
+              <Calendar size={16} />
+              <span>Jejak Perjalanan Organisasi (2011 – Kini)</span>
+            </div>
+          </div>
+
+          <div className="am-milestones-open-grid">
+            {milestones.map((ms, idx) => {
+              const photo =
+                MILESTONE_PHOTOS[idx % MILESTONE_PHOTOS.length] ||
+                ALL_GALLERY_PHOTOS[0];
+              return (
+                <div key={ms.id || ms.year || idx} className="am-milestone-open-item">
+                  <div className="am-ms-open-top">
+                    <span className="am-ms-year-pill">{ms.year}</span>
+                    <span className="am-ms-badge-text">
+                      {ms.badge || `Tahap 0${idx + 1}`}
+                    </span>
+                  </div>
+                  <h4>{ms.title}</h4>
+                  <p>{ms.desc}</p>
+                  <button
+                    type="button"
+                    className="am-ms-photo-preview"
+                    onClick={() => onOpenLightbox && onOpenLightbox(photo)}
+                  >
+                    <img src={ms.image || photo.src} alt={ms.title} />
+                    <span>
+                      <CheckCircle2 size={12} /> {photo.albumTitle}
+                    </span>
+                  </button>
                 </div>
               );
             })}

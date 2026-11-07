@@ -1,11 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import {
   HelpCircle,
-  ChevronDown,
   Search,
   Sparkles,
   MessageCircle,
-  Compass,
   CheckCircle2,
 } from 'lucide-react';
 import { FAQS } from '../data/ambuluData';
@@ -19,7 +17,6 @@ const FAQ_CATEGORIES = [
 ];
 
 export default function FaqSection({ backendState }) {
-  const [openIndex, setOpenIndex] = useState(0);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -78,149 +75,86 @@ export default function FaqSection({ backendState }) {
           </p>
         </div>
 
-        <div className="am-faq-studio-grid">
-          <aside className="am-card am-faq-sidebar">
-            <div className="am-faq-search-box">
-              <Search size={16} />
-              <input
-                type="text"
-                placeholder="Cari topik pertanyaan..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setOpenIndex(0);
-                }}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  className="am-faq-clear-btn"
-                  onClick={() => setSearchQuery('')}
-                >
-                  Reset
-                </button>
-              )}
-            </div>
-
-            <div className="am-faq-cat-list">
-              <span className="am-studio-rail-label">Filter Kategori</span>
-              {FAQ_CATEGORIES.map((cat) => {
-                const count =
-                  cat.id === 'all'
-                    ? enrichedFaqs.length
-                    : enrichedFaqs.filter((f) => f.category === cat.id).length;
-                return (
-                  <button
-                    key={cat.id}
-                    type="button"
-                    className={`am-faq-cat-btn ${
-                      activeCategory === cat.id ? 'is-active' : ''
-                    }`}
-                    onClick={() => {
-                      setActiveCategory(cat.id);
-                      setOpenIndex(0);
-                    }}
-                  >
-                    <span>{cat.label}</span>
-                    <span className="am-faq-cat-count">{count}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="am-faq-helper-box">
-              <div className="am-faq-helper-badge">
-                <Compass size={14} /> Layanan Informasi
-              </div>
-              <h4>Punya Pertanyaan Khusus?</h4>
-              <p>
-                Tim narahubung Ambulu Mengajar siap membantu sekolah, pelajar,
-                maupun mitra kolaborasi secara langsung.
-              </p>
-              <a
-                href="#kontak"
-                className="am-btn am-btn-primary am-btn-sm am-btn-full"
+        {/* COMPACT INLINE TOOLBAR (NO SEPARATE SIDEBAR CARD) */}
+        <div className="am-doc-controls-wrapper">
+          <div className="am-doc-filter-pills">
+            {FAQ_CATEGORIES.map((cat) => (
+              <button
+                key={cat.id}
+                type="button"
+                className={`am-filter-pill ${
+                  activeCategory === cat.id ? 'is-active' : ''
+                }`}
+                onClick={() => setActiveCategory(cat.id)}
               >
-                <MessageCircle size={15} /> Hubungi Tim Kami
-              </a>
-            </div>
-          </aside>
+                {cat.label}
+              </button>
+            ))}
+          </div>
 
-          <div className="am-faq-list">
-            {filteredFaqs.length === 0 ? (
-              <div className="am-card am-empty-state">
-                <HelpCircle size={32} />
-                <h3>Pertanyaan tidak ditemukan</h3>
-                <p>
-                  Coba gunakan kata kunci lain atau pilih kategori &ldquo;Semua
-                  Topik&rdquo;.
-                </p>
-                <button
-                  type="button"
-                  className="am-btn am-btn-outline am-btn-sm"
-                  onClick={() => {
-                    setActiveCategory('all');
-                    setSearchQuery('');
-                  }}
-                >
-                  Tampilkan Semua FAQ
-                </button>
-              </div>
-            ) : (
-              filteredFaqs.map((item, idx) => {
-                const isOpen = openIndex === idx;
-                return (
-                  <div
-                    key={item.id}
-                    className={`am-card am-faq-item ${isOpen ? 'is-open' : ''}`}
-                  >
-                    <button
-                      type="button"
-                      className="am-faq-question"
-                      onClick={() => setOpenIndex(isOpen ? -1 : idx)}
-                      aria-expanded={isOpen}
-                    >
-                      <span className="am-faq-q-left">
-                        <span className="am-faq-num">{item.number}</span>
-                        <span className="am-faq-q-text-wrap">
-                          <span className="am-faq-item-badge">{item.badge}</span>
-                          <span className="am-faq-q-title">{item.q}</span>
-                        </span>
-                      </span>
-                      <ChevronDown
-                        size={18}
-                        className={`am-faq-chevron ${
-                          isOpen ? 'is-rotated' : ''
-                        }`}
-                      />
-                    </button>
-                    {isOpen && (
-                      <div className="am-faq-answer">
-                        <p>{item.a}</p>
-                        <div className="am-faq-answer-footer">
-                          <span className="am-faq-verified">
-                            <CheckCircle2 size={14} /> Informasi Resmi Ambulu
-                            Mengajar
-                          </span>
-                          <a
-                            href={`https://wa.me/6282257081262?text=${encodeURIComponent(
-                              `Halo Kak, saya ingin bertanya lebih lanjut mengenai: "${item.q}"`
-                            )}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="am-faq-ask-wa"
-                          >
-                            <MessageCircle size={13} /> Tanyakan via WhatsApp
-                          </a>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            )}
+          <div className="am-search-box">
+            <Search size={16} className="am-search-icon" />
+            <input
+              type="text"
+              placeholder="Cari topik pertanyaan..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="am-search-input"
+            />
           </div>
         </div>
+
+        {/* DIRECTLY OPEN FAQ CARDS (MOBILE & DESKTOP FRIENDLY) */}
+        {filteredFaqs.length === 0 ? (
+          <div className="am-card am-empty-state">
+            <HelpCircle size={32} />
+            <h3>Pertanyaan tidak ditemukan</h3>
+            <p>
+              Coba gunakan kata kunci lain atau pilih kategori &ldquo;Semua
+              Topik&rdquo;.
+            </p>
+            <button
+              type="button"
+              className="am-btn am-btn-outline am-btn-sm"
+              onClick={() => {
+                setActiveCategory('all');
+                setSearchQuery('');
+              }}
+            >
+              Tampilkan Semua FAQ
+            </button>
+          </div>
+        ) : (
+          <div className="am-faqs-open-grid">
+            {filteredFaqs.map((item) => (
+              <article key={item.id} className="am-card am-faq-open-card">
+                <div className="am-faq-open-top">
+                  <span className="am-faq-num">{item.number}</span>
+                  <div className="am-faq-q-text-wrap">
+                    <span className="am-faq-item-badge">{item.badge}</span>
+                    <h3 className="am-faq-q-title">{item.q}</h3>
+                  </div>
+                </div>
+                <p className="am-faq-open-body">{item.a}</p>
+                <div className="am-faq-answer-footer">
+                  <span className="am-faq-verified">
+                    <CheckCircle2 size={14} /> Informasi Resmi Ambulu Mengajar
+                  </span>
+                  <a
+                    href={`https://wa.me/6282257081262?text=${encodeURIComponent(
+                      `Halo Kak, saya ingin bertanya lebih lanjut mengenai: "${item.q}"`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="am-faq-ask-wa"
+                  >
+                    <MessageCircle size={13} /> Tanyakan via WhatsApp
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

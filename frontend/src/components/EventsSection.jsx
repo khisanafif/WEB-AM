@@ -82,9 +82,6 @@ export default function EventsSection({
   const donationsLog = backendState?.donationsLog || [];
 
   const [statusFilter, setStatusFilter] = useState('all');
-  const [selectedEventId, setSelectedEventId] = useState(
-    events[0]?.id || 'evt-kurma-2022'
-  );
   const [copiedId, setCopiedId] = useState(null);
 
   const [donationType, setDonationType] = useState('uang');
@@ -97,13 +94,10 @@ export default function EventsSection({
     statusFilter === 'all' ? true : evt.status === statusFilter
   );
 
-  const activeEvent =
-    events.find((e) => e.id === selectedEventId) ||
-    filteredEvents[0] ||
-    events[0];
-
   const handleCopy = (acc) => {
-    navigator.clipboard.writeText(acc.numberClean || acc.rawNumber || acc.number);
+    navigator.clipboard.writeText(
+      acc.numberClean || acc.rawNumber || acc.number
+    );
     setCopiedId(acc.id || acc.bank);
     setSelectedBank(acc.bank.split(' ')[0]);
     setTimeout(() => setCopiedId(null), 2200);
@@ -126,8 +120,8 @@ export default function EventsSection({
     try {
       const res = await createDonationLogApi({
         donorName: donorName.trim() || 'Hamba Allah',
-        eventId: activeEvent?.id || 'evt-general',
-        eventTitle: activeEvent?.title || donationConfig.campaignTitle,
+        eventId: events[0]?.id || 'evt-general',
+        eventTitle: donationConfig.campaignTitle,
         type:
           DONATION_TYPES.find((t) => t.id === donationType)?.label ||
           'Donasi Dana Tunai',
@@ -145,10 +139,6 @@ export default function EventsSection({
       window.open(waUrl, '_blank', 'noopener,noreferrer');
     }
   };
-
-  const statusInfo =
-    STATUS_META[activeEvent?.status] || STATUS_META.completed;
-  const StatusIcon = statusInfo.icon;
 
   return (
     <section
@@ -172,66 +162,13 @@ export default function EventsSection({
           </div>
 
           <p className="am-section-desc">
-            Informasi pelaksanaan kegiatan pendidikan, bakti sosial kemanusiaan,
+            Daftar pelaksanaan kegiatan pendidikan, bakti sosial kemanusiaan,
             serta transparansi penyaluran donasi melalui Ambulu Mengajar
             Filantropi (AMF).
           </p>
         </div>
 
-        {/* GLOBAL EVENT & DONATION STATUS BANNER */}
-        <div
-          className={`am-card am-event-status-banner ${
-            donationConfig.isOpen ? 'is-open-banner' : 'is-closed-banner'
-          }`}
-        >
-          <div className="am-status-banner-left">
-            <div className="am-status-banner-icon">
-              {donationConfig.isOpen ? (
-                <Unlock size={24} />
-              ) : (
-                <FileCheck2 size={24} />
-              )}
-            </div>
-            <div className="am-status-banner-text">
-              <div className="am-status-pill-row">
-                <span
-                  className={`am-live-status-pill ${
-                    donationConfig.isOpen ? 'is-open' : 'is-closed'
-                  }`}
-                >
-                  {donationConfig.statusBadgeText ||
-                    (donationConfig.isOpen
-                      ? 'OPEN DONATION — SEDANG BERLANGSUNG'
-                      : 'PROGRAM DONASI TELAH SELESAI')}
-                </span>
-                <span className="am-status-sub-tag">
-                  Ambulu Mengajar Filantropi (AMF)
-                </span>
-              </div>
-              <h3>
-                {donationConfig.isOpen
-                  ? donationConfig.campaignTitle
-                  : donationConfig.closedNoticeTitle ||
-                    'Penyaluran Donasi Program KURMA Telah Selesai Dilaksanakan'}
-              </h3>
-              <p>
-                {donationConfig.isOpen
-                  ? donationConfig.activeNoticeDesc
-                  : donationConfig.closedNoticeDesc}
-              </p>
-            </div>
-          </div>
-
-          <div className="am-status-banner-right">
-            <div className="am-status-stat-Mini">
-              <span>Status Realisasi Program</span>
-              <strong>100% Tersalurkan</strong>
-              <small>Transparan & Terdokumentasi</small>
-            </div>
-          </div>
-        </div>
-
-        {/* EVENT FILTER TABS & SELECTOR BAR */}
+        {/* FILTER PILLS */}
         <div className="am-event-selector-bar">
           <div className="am-event-filter-pills">
             {[
@@ -261,137 +198,79 @@ export default function EventsSection({
                 className={`am-filter-pill ${
                   statusFilter === tab.id ? 'is-active' : ''
                 }`}
-                onClick={() => {
-                  setStatusFilter(tab.id);
-                  const firstMatch =
-                    tab.id === 'all'
-                      ? events[0]
-                      : events.find((e) => e.status === tab.id);
-                  if (firstMatch) setSelectedEventId(firstMatch.id);
-                }}
+                onClick={() => setStatusFilter(tab.id)}
               >
                 {tab.label}
               </button>
             ))}
           </div>
-
-          <div className="am-event-cards-strip">
-            {filteredEvents.map((evt) => {
-              const meta = STATUS_META[evt.status] || STATUS_META.completed;
-              const Icon = meta.icon;
-              const isSelected = activeEvent?.id === evt.id;
-              return (
-                <button
-                  key={evt.id}
-                  type="button"
-                  className={`am-event-Select-card ${
-                    isSelected ? 'is-selected' : ''
-                  }`}
-                  onClick={() => setSelectedEventId(evt.id)}
-                >
-                  <span className={`am-evt-mini-badge ${meta.badgeClass}`}>
-                    <Icon size={12} /> {meta.label}
-                  </span>
-                  <strong>{evt.title}</strong>
-                  <small>{evt.period}</small>
-                </button>
-              );
-            })}
-          </div>
         </div>
 
-        {/* MAIN EVENT & DONATION BENTO WORKSPACE */}
-        {activeEvent && (
-          <div className="am-event-studio-grid">
-            {/* LEFT COLUMN: EVENT POSTER & REALIZATION REPORT */}
-            <div className="am-card am-event-showcase-col">
-              <div className="am-event-poster-stage" id="image04">
-                <div className="am-poster-status-overlay">
-                  <span className={`am-evt-status-badge ${statusInfo.badgeClass}`}>
-                    <StatusIcon size={14} /> {statusInfo.label}
-                  </span>
-                  {activeEvent.status === 'completed' && (
-                    <span className="am-evt-archive-pill">
-                      <Archive size={13} /> Dokumentasi Kegiatan
-                    </span>
-                  )}
-                </div>
+        {/* DIRECTLY OPEN EVENT CARDS (NO SEPARATE SELECTOR VS DETAIL CARD) */}
+        <div className="am-events-open-grid">
+          {filteredEvents.map((evt) => {
+            const statusInfo =
+              STATUS_META[evt.status] || STATUS_META.completed;
+            const StatusIcon = statusInfo.icon;
 
-                <img
-                  src={activeEvent.poster || 'assets/images/image04.jpg'}
-                  alt={activeEvent.title}
-                  className="am-event-poster-img"
-                  onClick={() =>
-                    handlePreviewPhoto({
-                      src: activeEvent.poster || 'assets/images/image04.jpg',
-                      albumTitle: `${activeEvent.title} (${statusInfo.label})`,
-                      caption: `${activeEvent.subtitle} — Periode: ${activeEvent.period}. ${activeEvent.completionReport}`,
-                    })
-                  }
-                />
-                <button
-                  type="button"
-                  className="am-poster-zoom-chip"
-                  onClick={() =>
-                    handlePreviewPhoto({
-                      src: activeEvent.poster || 'assets/images/image04.jpg',
-                      albumTitle: `${activeEvent.title} (${statusInfo.label})`,
-                      caption: `${activeEvent.subtitle} — Periode: ${activeEvent.period}`,
-                    })
-                  }
-                >
-                  Perbesar Poster Kegiatan
-                </button>
-              </div>
-
-              <div className="am-card am-timer-studio-box" id="timer01">
-                <div className="am-timer-studio-head">
-                  <span className="am-timer-label">
-                    <Calendar size={14} /> Detail Pelaksanaan Kegiatan
-                  </span>
-                  <span className={`am-evt-inline-tag ${statusInfo.badgeClass}`}>
-                    {statusInfo.label}
-                  </span>
-                </div>
-
-                <h3 className="am-evt-detail-title">{activeEvent.title}</h3>
-                <div className="am-evt-meta-list">
-                  <span>
-                    <Calendar size={14} /> Periode:{' '}
-                    <strong>{activeEvent.period}</strong>
-                  </span>
-                  <span>
-                    <MapPin size={14} /> Lokasi:{' '}
-                    <strong>{activeEvent.location}</strong>
-                  </span>
-                </div>
-
+            return (
+              <article key={evt.id} className="am-card am-event-open-card">
                 <div
-                  className={`am-evt-report-callout ${
-                    activeEvent.status === 'completed'
-                      ? 'is-completed'
-                      : 'is-active'
-                  }`}
+                  className="am-event-open-media"
+                  onClick={() =>
+                    handlePreviewPhoto({
+                      src: evt.poster || 'assets/images/image04.jpg',
+                      albumTitle: `${evt.title} (${statusInfo.label})`,
+                      caption: `${evt.subtitle} — Periode: ${evt.period}`,
+                    })
+                  }
                 >
-                  <div className="am-evt-report-head">
-                    <CheckCircle2 size={16} />
-                    <strong>
-                      {activeEvent.status === 'completed'
-                        ? 'Ringkasan Pelaksanaan & Penyaluran'
-                        : 'Informasi Kegiatan'}
-                    </strong>
+                  <img
+                    src={evt.poster || 'assets/images/image04.jpg'}
+                    alt={evt.title}
+                  />
+                  <div className="am-event-open-badges">
+                    <span
+                      className={`am-evt-status-badge ${statusInfo.badgeClass}`}
+                    >
+                      <StatusIcon size={13} /> {statusInfo.label}
+                    </span>
+                    <span className="am-evt-archive-pill">{evt.category}</span>
                   </div>
-                  <p>
-                    {activeEvent.completionReport || activeEvent.description}
-                  </p>
                 </div>
 
-                {activeEvent.deliverables &&
-                  activeEvent.deliverables.length > 0 && (
+                <div className="am-event-open-body">
+                  <h3>{evt.title}</h3>
+                  <p className="am-event-open-sub">{evt.subtitle}</p>
+
+                  <div className="am-evt-meta-list">
+                    <span>
+                      <Calendar size={14} /> Periode:{' '}
+                      <strong>{evt.period}</strong>
+                    </span>
+                    <span>
+                      <MapPin size={14} /> Lokasi:{' '}
+                      <strong>{evt.location}</strong>
+                    </span>
+                  </div>
+
+                  <div className="am-evt-report-callout">
+                    <div className="am-evt-report-head">
+                      <CheckCircle2 size={15} />
+                      <strong>
+                        {evt.status === 'completed'
+                          ? 'Laporan Pelaksanaan Kegiatan'
+                          : 'Informasi Kegiatan'}
+                      </strong>
+                    </div>
+                    <p>{evt.completionReport || evt.description}</p>
+                  </div>
+
+                  {evt.deliverables && evt.deliverables.length > 0 && (
                     <div className="am-evt-deliverables">
                       <h4>Cakupan & Realisasi Program:</h4>
                       <ul>
-                        {activeEvent.deliverables.map((item, i) => (
+                        {evt.deliverables.map((item, i) => (
                           <li key={i}>
                             <CheckCircle2 size={14} />
                             <span>{item}</span>
@@ -401,317 +280,298 @@ export default function EventsSection({
                     </div>
                   )}
 
-                {activeEvent.registrationUrl && (
-                  <a
-                    href={activeEvent.registrationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="am-btn am-btn-primary am-btn-sm am-btn-full"
-                  >
-                    <span>Informasi & Pendaftaran</span>
-                    <ExternalLink size={14} />
-                  </a>
-                )}
-              </div>
-            </div>
+                  {evt.registrationUrl && (
+                    <a
+                      href={evt.registrationUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="am-btn am-btn-primary am-btn-sm am-btn-full"
+                    >
+                      <span>Informasi & Pendaftaran</span>
+                      <ExternalLink size={14} />
+                    </a>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
 
-            {/* RIGHT COLUMN: DYNAMIC DONATION PANEL */}
-            <div className="am-card am-donation-studio-col">
-              {!donationConfig.isOpen ? (
-                <div className="am-donation-closed-studio">
-                  <div className="am-closed-hero-box">
-                    <div className="am-closed-badge-row">
-                      <span className="am-closed-pill">
-                        <Lock size={13} /> PERIODE DONASI BERAKHIR
-                      </span>
-                      <span className="am-verified-pill">
-                        <CheckCircle2 size={13} /> 100% TERSALURKAN
-                      </span>
-                    </div>
+        {/* UNIFIED FILANTROPI & DONATION STATUS CARD */}
+        <div className="am-card am-donation-studio-col am-donation-full-card">
+          {!donationConfig.isOpen ? (
+            <div className="am-donation-closed-studio">
+              <div className="am-closed-hero-box">
+                <div className="am-closed-badge-row">
+                  <span className="am-closed-pill">
+                    <Lock size={13} />{' '}
+                    {donationConfig.statusBadgeText ||
+                      'PROGRAM DONASI TELAH SELESAI'}
+                  </span>
+                  <span className="am-verified-pill">
+                    <FileCheck2 size={13} /> 100% TERSALURKAN
+                  </span>
+                </div>
 
-                    <h3>
-                      Laporan Penyaluran Bakti Sosial & Santunan Ramadhan
-                    </h3>
-                    <p>
-                      Kegiatan penggalangan donasi untuk{' '}
-                      <strong>
-                        Panti Asuhan &ldquo;Immamul Mutaqin&rdquo; (14 – 22 April
-                        2022)
-                      </strong>{' '}
-                      telah terlaksana dengan baik. Seluruh amanah donatur berupa
-                      dana santunan, paket sembako, serta pakaian layak pakai
-                      telah diserahkan secara langsung kepada pihak panti asuhan.
-                    </p>
+                <h3>
+                  {donationConfig.closedNoticeTitle ||
+                    'Penyaluran Donasi Program KURMA Telah Selesai Dilaksanakan'}
+                </h3>
+                <p>{donationConfig.closedNoticeDesc}</p>
 
-                    <div className="am-closed-stats-grid">
-                      <div className="am-closed-stat-card">
-                        <span>Status Kegiatan</span>
-                        <strong>Telah Terlaksana</strong>
-                        <small>22 April 2022 • Ambulu</small>
-                      </div>
-                      <div className="am-closed-stat-card">
-                        <span>Penerima Manfaat</span>
-                        <strong>Immamul Mutaqin</strong>
-                        <small>Panti Asuhan • AMF Baksos</small>
-                      </div>
-                      <div className="am-closed-stat-card">
-                        <span>Penyaluran Amanah</span>
-                        <strong>100% Selesai</strong>
-                        <small>Dana, Sembako & Pakaian</small>
-                      </div>
-                    </div>
+                <div className="am-closed-stats-grid">
+                  <div className="am-closed-stat-card">
+                    <span>Status Kegiatan</span>
+                    <strong>Telah Terlaksana</strong>
+                    <small>Kecamatan Ambulu, Jember</small>
                   </div>
-
-                  <div className="am-archived-accounts-section">
-                    <div className="am-archived-head">
-                      <h4>
-                        <Archive size={16} /> Daftar Kanal Rekening Resmi AMF
-                      </h4>
-                      <span className="am-archived-note">
-                        Informasi rekening resmi Ambulu Mengajar Filantropi
-                        (AMF) saat periode penggalangan donasi dibuka:
-                      </span>
-                    </div>
-
-                    <div className="am-bank-studio-grid is-disabled-grid">
-                      {(donationConfig.bankAccounts || []).map((acc) => (
-                        <div
-                          key={acc.id || acc.bank}
-                          className="am-bank-studio-card is-archived-card"
-                        >
-                          <div className="am-bank-top-row">
-                            <span
-                              className="am-bank-badge"
-                              style={{ backgroundColor: acc.badgeColor }}
-                            >
-                              {acc.bank}
-                            </span>
-                            <span className="am-bank-closed-tag">
-                              <Lock size={12} /> Periode Selesai
-                            </span>
-                          </div>
-                          <div className="am-bank-num">{acc.number}</div>
-                          <div className="am-bank-holder">a.n {acc.holder}</div>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="am-closed-stat-card">
+                    <span>Penerima Manfaat</span>
+                    <strong>Immamul Mutaqin</strong>
+                    <small>Panti Asuhan • AMF Baksos</small>
                   </div>
-
-                  <div className="am-donations-history-box">
-                    <h4>JejaK Apresiasi & Penyaluran Donasi</h4>
-                    <div className="am-donations-log-list">
-                      {donationsLog.slice(0, 4).map((log) => (
-                        <div key={log.id} className="am-donation-log-item">
-                          <div className="am-log-left">
-                            <strong>{log.donorName}</strong>
-                            <span>
-                              {log.type} • {log.eventTitle}
-                            </span>
-                          </div>
-                          <div className="am-log-right">
-                            {log.amount > 0 && (
-                              <strong>
-                                Rp {Number(log.amount).toLocaleString('id-ID')}
-                              </strong>
-                            )}
-                            <span className="am-log-verified-badge">
-                              <CheckCircle2 size={12} /> Tersalurkan
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="am-closed-footer-actions">
-                    <div className="am-cp-info-box">
-                      <span>
-                        Ingin bersinergi untuk program Bakti Sosial atau Beasiswa
-                        AMF berikutnya? Hubungi Narahubung Resmi kami:
-                      </span>
-                      <div className="am-wa-confirm-grid">
-                        {(donationConfig.contactPersons || []).map((cp) => (
-                          <a
-                            key={cp.name}
-                            href={cp.waLink}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="am-wa-confirm-btn"
-                          >
-                            <MessageCircle size={18} />
-                            <div>
-                              <strong>Hubungi Kak {cp.name}</strong>
-                              <span>{cp.phoneDisplay}</span>
-                            </div>
-                          </a>
-                        ))}
-                      </div>
-                    </div>
+                  <div className="am-closed-stat-card">
+                    <span>Penyaluran Amanah</span>
+                    <strong>100% Selesai</strong>
+                    <small>Dana, Sembako & Pakaian</small>
                   </div>
                 </div>
-              ) : (
-                <>
-                  <div className="am-donation-studio-header">
-                    <span className="am-studio-badge">
-                      <HeartHandshake size={14} /> Portal Donasi & Filantropi
+              </div>
+
+              <div className="am-donation-bottom-split">
+                <div className="am-archived-accounts-section">
+                  <div className="am-archived-head">
+                    <h4>
+                      <Archive size={16} /> Kanal Rekening Resmi AMF
+                    </h4>
+                    <span className="am-archived-note">
+                      Daftar rekening resmi Ambulu Mengajar Filantropi (AMF):
                     </span>
-                    <h3>{donationConfig.campaignTitle}</h3>
-                    <p>{donationConfig.activeNoticeDesc}</p>
                   </div>
 
-                  <div className="am-config-step">
-                    <div className="am-step-label">
-                      <span className="am-step-num">1</span>
-                      <span>Pilih Bentuk Kontribusi / Bantuan</span>
-                    </div>
-                    <div className="am-dtype-grid">
-                      {DONATION_TYPES.map((t) => {
-                        const Icon = t.icon;
-                        const active = donationType === t.id;
-                        return (
-                          <button
-                            key={t.id}
-                            type="button"
-                            className={`am-dtype-card ${
-                              active ? 'is-active' : ''
-                            }`}
-                            onClick={() => setDonationType(t.id)}
+                  <div className="am-bank-studio-grid is-disabled-grid">
+                    {(donationConfig.bankAccounts || []).map((acc) => (
+                      <div
+                        key={acc.id || acc.bank}
+                        className="am-bank-studio-card is-archived-card"
+                      >
+                        <div className="am-bank-top-row">
+                          <span
+                            className="am-bank-badge"
+                            style={{ backgroundColor: acc.badgeColor }}
                           >
-                            <Icon size={20} />
-                            <strong>{t.label}</strong>
-                            <span>{t.desc}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                            {acc.bank}
+                          </span>
+                          <span className="am-bank-closed-tag">
+                            <Lock size={12} /> Periode Selesai
+                          </span>
+                        </div>
+                        <div className="am-bank-num">{acc.number}</div>
+                        <div className="am-bank-holder">a.n {acc.holder}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="am-donations-history-box">
+                  <h4>Jejak Penyaluran & Narahubung Resmi</h4>
+                  <div className="am-donations-log-list">
+                    {donationsLog.slice(0, 3).map((log) => (
+                      <div key={log.id} className="am-donation-log-item">
+                        <div className="am-log-left">
+                          <strong>{log.donorName}</strong>
+                          <span>
+                            {log.type} • {log.eventTitle}
+                          </span>
+                        </div>
+                        <div className="am-log-right">
+                          {log.amount > 0 && (
+                            <strong>
+                              Rp {Number(log.amount).toLocaleString('id-ID')}
+                            </strong>
+                          )}
+                          <span className="am-log-verified-badge">
+                            <CheckCircle2 size={12} /> Tersalurkan
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
-                  {donationType === 'uang' && (
-                    <div className="am-config-step">
-                      <div className="am-step-label">
-                        <span className="am-step-num">2</span>
-                        <span>Pilih Estimasi Nominal & Nama Donatur</span>
-                      </div>
-                      <div className="am-nominal-grid">
-                        {NOMINAL_PRESETS.map((preset) => (
-                          <button
-                            key={preset.value}
-                            type="button"
-                            className={`am-nominal-pill ${
-                              selectedNominal === preset.value
-                                ? 'is-active'
-                                : ''
-                            }`}
-                            onClick={() => setSelectedNominal(preset.value)}
-                          >
-                            <strong>{preset.label}</strong>
-                            <span>{preset.impact}</span>
-                          </button>
-                        ))}
-                      </div>
-                      <div className="am-donor-input-row">
-                        <input
-                          type="text"
-                          className="am-admin-input"
-                          placeholder="Nama Donatur (Opsional, kosongkan untuk Hamba Allah)"
-                          value={donorName}
-                          onChange={(e) => setDonorName(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  )}
+                  <div className="am-wa-confirm-grid" style={{ marginTop: '1rem' }}>
+                    {(donationConfig.contactPersons || []).map((cp) => (
+                      <a
+                        key={cp.name}
+                        href={cp.waLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="am-wa-confirm-btn"
+                      >
+                        <MessageCircle size={18} />
+                        <div>
+                          <strong>Hubungi Kak {cp.name}</strong>
+                          <span>{cp.phoneDisplay}</span>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="am-donation-studio-header">
+                <span className="am-studio-badge">
+                  <Unlock size={14} />{' '}
+                  {donationConfig.statusBadgeText ||
+                    'OPEN DONATION — SEDANG BERLANGSUNG'}
+                </span>
+                <h3>{donationConfig.campaignTitle}</h3>
+                <p>{donationConfig.activeNoticeDesc}</p>
+              </div>
 
-                  <div className="am-config-step">
-                    <div className="am-step-label">
-                      <span className="am-step-num">
-                        {donationType === 'uang' ? '3' : '2'}
-                      </span>
-                      <span>
-                        Salin Nomor Rekening Resmi Ambulu Mengajar (Klik untuk
-                        Salin)
-                      </span>
-                    </div>
-                    <div className="am-bank-studio-grid">
-                      {(donationConfig.bankAccounts || []).map((acc) => {
-                        const isCopied = copiedId === (acc.id || acc.bank);
-                        return (
-                          <div
-                            key={acc.id || acc.bank}
-                            className={`am-bank-studio-card ${
+              <div className="am-config-step">
+                <div className="am-step-label">
+                  <span className="am-step-num">1</span>
+                  <span>Pilih Bentuk Kontribusi / Bantuan</span>
+                </div>
+                <div className="am-dtype-grid">
+                  {DONATION_TYPES.map((t) => {
+                    const Icon = t.icon;
+                    const active = donationType === t.id;
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        className={`am-dtype-card ${active ? 'is-active' : ''}`}
+                        onClick={() => setDonationType(t.id)}
+                      >
+                        <Icon size={20} />
+                        <strong>{t.label}</strong>
+                        <span>{t.desc}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {donationType === 'uang' && (
+                <div className="am-config-step">
+                  <div className="am-step-label">
+                    <span className="am-step-num">2</span>
+                    <span>Pilih Estimasi Nominal & Nama Donatur</span>
+                  </div>
+                  <div className="am-nominal-grid">
+                    {NOMINAL_PRESETS.map((preset) => (
+                      <button
+                        key={preset.value}
+                        type="button"
+                        className={`am-nominal-pill ${
+                          selectedNominal === preset.value ? 'is-active' : ''
+                        }`}
+                        onClick={() => setSelectedNominal(preset.value)}
+                      >
+                        <strong>{preset.label}</strong>
+                        <span>{preset.impact}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="am-donor-input-row">
+                    <input
+                      type="text"
+                      className="am-admin-input"
+                      placeholder="Nama Donatur (Opsional, kosongkan untuk Hamba Allah)"
+                      value={donorName}
+                      onChange={(e) => setDonorName(e.target.value)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="am-config-step">
+                <div className="am-step-label">
+                  <span className="am-step-num">
+                    {donationType === 'uang' ? '3' : '2'}
+                  </span>
+                  <span>
+                    Salin Nomor Rekening Resmi Ambulu Mengajar (Klik untuk Salin)
+                  </span>
+                </div>
+                <div className="am-bank-studio-grid">
+                  {(donationConfig.bankAccounts || []).map((acc) => {
+                    const isCopied = copiedId === (acc.id || acc.bank);
+                    return (
+                      <div
+                        key={acc.id || acc.bank}
+                        className={`am-bank-studio-card ${
+                          isCopied ? 'is-copied' : ''
+                        }`}
+                        onClick={() => handleCopy(acc)}
+                      >
+                        <div className="am-bank-top-row">
+                          <span
+                            className="am-bank-badge"
+                            style={{ backgroundColor: acc.badgeColor }}
+                          >
+                            {acc.bank}
+                          </span>
+                          <button
+                            type="button"
+                            className={`am-copy-chip ${
                               isCopied ? 'is-copied' : ''
                             }`}
-                            onClick={() => handleCopy(acc)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopy(acc);
+                            }}
                           >
-                            <div className="am-bank-top-row">
-                              <span
-                                className="am-bank-badge"
-                                style={{ backgroundColor: acc.badgeColor }}
-                              >
-                                {acc.bank}
-                              </span>
-                              <button
-                                type="button"
-                                className={`am-copy-chip ${
-                                  isCopied ? 'is-copied' : ''
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleCopy(acc);
-                                }}
-                              >
-                                {isCopied ? (
-                                  <>
-                                    <Check size={13} /> Tersalin!
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy size={13} /> Salin
-                                  </>
-                                )}
-                              </button>
-                            </div>
-                            <div className="am-bank-num">{acc.number}</div>
-                            <div className="am-bank-holder">
-                              a.n {acc.holder}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                            {isCopied ? (
+                              <>
+                                <Check size={13} /> Tersalin!
+                              </>
+                            ) : (
+                              <>
+                                <Copy size={13} /> Salin
+                              </>
+                            )}
+                          </button>
+                        </div>
+                        <div className="am-bank-num">{acc.number}</div>
+                        <div className="am-bank-holder">a.n {acc.holder}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
 
-                  <div className="am-config-step am-wa-confirm-step">
-                    <div className="am-step-label">
-                      <span className="am-step-num">
-                        {donationType === 'uang' ? '4' : '3'}
-                      </span>
-                      <span>
-                        Konfirmasi Donasi via WhatsApp Narahubung Resmi
-                      </span>
-                    </div>
-                    <div className="am-wa-confirm-grid">
-                      {(donationConfig.contactPersons || []).map((cp) => (
-                        <button
-                          key={cp.name}
-                          type="button"
-                          disabled={submittingLog}
-                          onClick={() => handleRecordAndOpenWa(cp)}
-                          className="am-wa-confirm-btn"
-                        >
-                          <MessageCircle size={18} />
-                          <div>
-                            <strong>Konfirmasi ke Kak {cp.name}</strong>
-                            <span>{cp.phoneDisplay}</span>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        )}
+              <div className="am-config-step am-wa-confirm-step">
+                <div className="am-step-label">
+                  <span className="am-step-num">
+                    {donationType === 'uang' ? '4' : '3'}
+                  </span>
+                  <span>Konfirmasi Donasi via WhatsApp Narahubung Resmi</span>
+                </div>
+                <div className="am-wa-confirm-grid">
+                  {(donationConfig.contactPersons || []).map((cp) => (
+                    <button
+                      key={cp.name}
+                      type="button"
+                      disabled={submittingLog}
+                      onClick={() => handleRecordAndOpenWa(cp)}
+                      className="am-wa-confirm-btn"
+                    >
+                      <MessageCircle size={18} />
+                      <div>
+                        <strong>Konfirmasi ke Kak {cp.name}</strong>
+                        <span>{cp.phoneDisplay}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </section>
   );

@@ -67,10 +67,8 @@ export default function Hero({
   const divisions = backendState?.divisions || DIVISIONS;
   const socialLinks = backendState?.socialLinks || SOCIAL_LINKS;
 
-  const [focusMode, setFocusMode] = useState('profil');
   const [activeReelIdx, setActiveReelIdx] = useState(0);
   const [reelPlaying, setReelPlaying] = useState(true);
-  const [selectedStatIdx, setSelectedStatIdx] = useState(0);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   const reelPhotos = ALL_GALLERY_PHOTOS.slice(0, 6);
@@ -99,45 +97,19 @@ export default function Hero({
 
   const currentReelPhoto = reelPhotos[activeReelIdx] || ALL_GALLERY_PHOTOS[0];
 
-  const focusTabs = [
-    {
-      id: 'profil',
-      label: 'Profil Organisasi',
-      badge: 'Dedikasi Pendidikan & Sosial',
-      text: orgInfo.description || ORG_INFO.exactCarrdDescription,
-    },
-    {
-      id: 'pendidikan',
-      label: 'Fokus Pendidikan',
-      badge: 'Pendampingan & Goes To School',
-      text:
-        orgInfo.educationFocus ||
-        'Memfasilitasi siswa-siswi SMA/SMK/MA sederajat di wilayah Ambulu dengan bimbingan belajar, pengenalan dunia perkuliahan, bedah jurusan, serta motivasi studi lanjut.',
-    },
-    {
-      id: 'sosial',
-      label: 'Beasiswa & Sosial',
-      badge: 'Beasiswa SMA & Bakti Sosial',
-      text:
-        orgInfo.socialFocus ||
-        'Menggerakkan kepedulian sosial masyarakat melalui penyelenggaraan beasiswa pendidikan tingkat SMA serta aksi bakti sosial kemanusiaan di panti asuhan dan masyarakat sekitar.',
-    },
-  ];
-
-  const activeFocus =
-    focusTabs.find((f) => f.id === focusMode) || focusTabs[0];
-
   const jumpToDivision = (divId) => {
     if (onSelectDivision) onSelectDivision(divId);
-    const el = document.getElementById('divisiambulumengajar');
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    const el =
+      document.getElementById(`divisi-card-${divId}`) ||
+      document.getElementById('divisiambulumengajar');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   return (
     <section className="am-hero-bento-section" id="home">
       <div className="am-container">
         <div className="am-bento-grid">
-          {/* TILE 1: MAIN EDITORIAL SHOWCASE */}
+          {/* TILE 1: MAIN EDITORIAL SHOWCASE (DIRECTLY OPEN PROFILE & FOCUS) */}
           <div className="am-bento-tile am-tile-editorial">
             <div className="am-tile-top-bar">
               <span className="am-pill-badge">
@@ -153,43 +125,37 @@ export default function Hero({
               Tinggi.
             </h1>
 
-            <div className="am-focus-switcher">
-              <div
-                className="am-focus-tabs"
-                role="tablist"
-                aria-label="Fokus Gerakan Ambulu Mengajar"
-              >
-                {focusTabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={focusMode === tab.id}
-                    className={`am-focus-tab ${
-                      focusMode === tab.id ? 'is-active' : ''
-                    }`}
-                    onClick={() => setFocusMode(tab.id)}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="am-focus-card" id="text04">
+            <div className="am-hero-open-descriptions" id="text04">
+              <div className="am-focus-card">
                 <div className="am-focus-card-meta">
                   <CheckCircle2 size={14} />
-                  <span>{activeFocus.badge}</span>
+                  <span>Profil & Tekad Pengabdian</span>
                 </div>
-                <p>{activeFocus.text}</p>
+                <p>{orgInfo.description || ORG_INFO.exactCarrdDescription}</p>
+              </div>
+
+              <div className="am-hero-subfocus-grid">
+                <div className="am-hero-subfocus-item">
+                  <strong>
+                    <GraduationCap size={15} /> Fokus Pendidikan
+                  </strong>
+                  <p>{orgInfo.educationFocus}</p>
+                </div>
+                <div className="am-hero-subfocus-item">
+                  <strong>
+                    <HeartHandshake size={15} /> Beasiswa & Sosial
+                  </strong>
+                  <p>{orgInfo.socialFocus}</p>
+                </div>
               </div>
             </div>
 
             <div className="am-bento-cta-row">
               <a href="#divisiambulumengajar" className="am-btn am-btn-primary">
-                <GraduationCap size={17} /> Jelajahi 4 Divisi Utama
+                <GraduationCap size={17} /> Lihat 4 Divisi Utama
               </a>
               <a href="#eventambulumengajar" className="am-btn am-btn-secondary">
-                <HeartHandshake size={17} /> Lihat Program & Kegiatan
+                <HeartHandshake size={17} /> Program & Kegiatan
               </a>
               <a href="#tentang" className="am-btn am-btn-outline">
                 <Compass size={16} /> Jejak Sejarah
@@ -273,45 +239,30 @@ export default function Hero({
             </div>
           </div>
 
-          {/* TILE 3: INTERACTIVE IMPACT METRIC INSPECTOR */}
+          {/* TILE 3: DIRECTLY OPEN STATS CARDS */}
           <div className="am-bento-tile am-tile-stats">
             <div className="am-tile-header-mini">
               <span>PROFIL & SKALA GERAKAN</span>
-              <small>Pilih metrik untuk detail</small>
             </div>
 
-            <div className="am-stats-interactive-grid">
+            <div className="am-stats-open-grid">
               {heroStats.map((st, idx) => (
-                <button
-                  key={st.id || idx}
-                  type="button"
-                  className={`am-stat-pill-btn ${
-                    selectedStatIdx === idx ? 'is-selected' : ''
-                  }`}
-                  onClick={() => setSelectedStatIdx(idx)}
-                >
+                <div key={st.id || idx} className="am-stat-open-card">
                   <strong>{st.value}</strong>
                   <span>{st.label}</span>
-                </button>
+                  <p>{st.detail}</p>
+                </div>
               ))}
-            </div>
-
-            <div className="am-stat-inspector-callout">
-              <p>
-                {heroStats[selectedStatIdx]?.detail ||
-                  heroStats[0]?.detail ||
-                  ''}
-              </p>
             </div>
           </div>
 
-          {/* TILE 4: 4 DIVISIONS INTERACTIVE QUICK LAUNCHER */}
+          {/* TILE 4: 4 DIVISIONS QUICK LAUNCHER */}
           <div className="am-bento-tile am-tile-div-launcher">
             <div className="am-tile-header-mini">
               <span>
                 <Layers size={13} /> 4 DIVISI FUNGSIONAL
               </span>
-              <small>Buka detail divisi</small>
+              <small>Lompat ke divisi</small>
             </div>
 
             <div className="am-div-launcher-grid">

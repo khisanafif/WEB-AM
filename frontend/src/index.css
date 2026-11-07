@@ -5751,4 +5751,588 @@ img {
   }
 }
 
+/* ==========================================================================
+   DIRECTLY-OPEN UNIFIED CARDS & MOBILE-FIRST LAYOUT (NO SPLIT SELECTOR/STAGE)
+   ========================================================================== */
+
+/* 1. HERO OPEN DESCRIPTIONS & STATS */
+.am-hero-open-descriptions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.am-hero-desc-card {
+  padding: 1rem 1.15rem;
+  border-radius: 0.9rem;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid var(--am-border);
+}
+
+[data-theme="light"] .am-hero-desc-card {
+  background: rgba(54, 54, 87, 0.04);
+}
+
+.am-hero-desc-card p {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--am-text-sec);
+  margin: 0;
+}
+
+.am-hero-desc-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--am-font-head);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--am-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.45rem;
+}
+
+.am-hero-subfocus-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+}
+
+.am-stats-open-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.am-stat-open-card {
+  padding: 1.15rem;
+  border-radius: 0.95rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--am-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+[data-theme="light"] .am-stat-open-card {
+  background: rgba(54, 54, 87, 0.04);
+}
+
+.am-stat-open-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.am-stat-open-detail {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--am-text-muted);
+  margin: 0;
+}
+
+/* 2. ABOUT SECTION: DIRECTLY-OPEN MISSIONS & MILESTONES */
+.am-missions-open-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.am-mission-open-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.15rem;
+  border-radius: 0.9rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--am-border);
+}
+
+[data-theme="light"] .am-mission-open-card {
+  background: rgba(54, 54, 87, 0.04);
+}
+
+.am-mission-open-num {
+  width: 30px;
+  height: 30px;
+  border-radius: 0.55rem;
+  background: var(--am-accent);
+  color: #1d1d33;
+  font-family: var(--am-font-head);
+  font-size: 0.78rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.am-mission-open-body {
+  flex: 1;
+}
+
+.am-mission-open-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.am-mission-open-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--am-accent);
+  text-transform: uppercase;
+}
+
+.am-mission-open-body p {
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--am-text-sec);
+  margin: 0;
+}
+
+.am-milestones-open-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.1rem;
+  margin-top: 1.15rem;
+}
+
+.am-milestone-open-item {
+  padding: 1.2rem;
+  border-radius: 1rem;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid var(--am-border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+[data-theme="light"] .am-milestone-open-item {
+  background: rgba(54, 54, 87, 0.04);
+}
+
+.am-milestone-open-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.am-milestone-step-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--am-text-muted);
+  text-transform: uppercase;
+}
+
+.am-milestone-open-title {
+  font-family: var(--am-font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--am-text);
+  margin: 0;
+}
+
+.am-milestone-open-desc {
+  font-size: 0.84rem;
+  line-height: 1.55;
+  color: var(--am-text-sec);
+  margin: 0;
+}
+
+/* 3. DIVISIONS SECTION: UNIFIED OPEN CARDS (NO SEPARATE SELECTOR/DETAIL STAGE) */
+.am-divisions-open-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--am-space-grid-gap);
+  margin-bottom: var(--am-space-grid-gap);
+}
+
+.am-div-unified-card {
+  padding: var(--am-space-card-pad);
+  border-radius: 1.25rem;
+  border: 1px solid var(--am-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.25rem;
+  scroll-margin-top: 6rem;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.am-div-unified-card.is-highlighted {
+  border-color: var(--div-color, var(--am-accent));
+  box-shadow: 0 0 0 2px var(--div-color, var(--am-accent)), 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+.am-div-unified-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--am-border);
+}
+
+.am-div-unified-identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.am-div-unified-titles h3 {
+  font-family: var(--am-font-head);
+  font-size: 1.22rem;
+  font-weight: 700;
+  line-height: 1.3;
+  margin: 0.25rem 0 0.2rem;
+}
+
+.am-div-unified-tagline {
+  font-size: 0.84rem;
+  color: var(--am-accent);
+  font-weight: 600;
+  margin: 0;
+}
+
+.am-div-unified-desc {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--am-text-sec);
+  margin: 0;
+}
+
+.am-div-unified-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.am-div-unified-box {
+  padding: 1.05rem;
+  border-radius: 0.9rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--am-border);
+}
+
+[data-theme="light"] .am-div-unified-box {
+  background: rgba(54, 54, 87, 0.04);
+}
+
+.am-div-unified-box h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--am-font-head);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--am-text);
+  margin: 0 0 0.7rem;
+}
+
+.am-div-unified-box h4 svg {
+  color: var(--div-color, var(--am-accent));
+}
+
+.am-div-unified-meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.am-div-unified-skills-lbl {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--am-text-muted);
+  margin-bottom: 0.45rem;
+}
+
+.am-div-unified-photos-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.65rem;
+}
+
+.am-div-unified-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--am-border);
+}
+
+/* 4. EVENTS SECTION: DIRECTLY-OPEN EVENT CARDS & FULL DONATION CARD */
+.am-events-open-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin-bottom: var(--am-space-grid-gap);
+}
+
+.am-event-open-card {
+  padding: var(--am-space-card-pad);
+  border-radius: 1.25rem;
+}
+
+.am-event-open-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.am-event-open-poster-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.am-event-open-details-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.am-event-open-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.am-event-open-cat {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--am-text-muted);
+  padding: 0.25rem 0.7rem;
+  border-radius: var(--am-radius-pill);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.am-event-open-title {
+  font-family: var(--am-font-head);
+  font-size: 1.45rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.am-event-open-sub {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--am-accent);
+  margin: -0.4rem 0 0;
+}
+
+.am-event-open-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.am-event-open-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.75rem 0.95rem;
+  border-radius: 0.8rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--am-border);
+}
+
+.am-event-open-meta-item svg {
+  color: var(--am-accent);
+  flex-shrink: 0;
+}
+
+.am-event-open-meta-item small {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--am-text-muted);
+}
+
+.am-event-open-meta-item strong {
+  font-size: 0.85rem;
+}
+
+.am-event-open-report-box {
+  padding: 1rem 1.15rem;
+  border-radius: 0.9rem;
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--am-border);
+}
+
+.am-event-open-report-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--am-font-head);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--am-accent);
+  margin-bottom: 0.4rem;
+}
+
+.am-event-open-report-box p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--am-text-sec);
+  margin: 0;
+}
+
+.am-event-open-deliverables {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.am-deliverable-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--am-radius-pill);
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+}
+
+.am-donation-full-card {
+  width: 100%;
+}
+
+.am-donation-bottom-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-top: 1.15rem;
+}
+
+.am-donation-subbox {
+  padding: 1.15rem;
+  border-radius: 1rem;
+  background: rgba(0, 0, 0, 0.16);
+  border: 1px solid var(--am-border);
+}
+
+/* 5. FAQ SECTION: DIRECTLY-OPEN FAQ CARDS */
+.am-faq-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.am-faqs-open-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.15rem;
+}
+
+.am-faq-open-card {
+  padding: 1.35rem;
+  border-radius: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.am-faq-open-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.am-faq-open-title {
+  font-family: var(--am-font-head);
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0.15rem 0 0;
+}
+
+.am-faq-open-body p {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--am-text-sec);
+  margin: 0;
+}
+
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVENESS FOR DIRECTLY-OPEN CARDS
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .am-divisions-open-grid,
+  .am-milestones-open-grid,
+  .am-faqs-open-grid,
+  .am-donation-bottom-split {
+    grid-template-columns: 1fr;
+  }
+
+  .am-event-open-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .am-event-open-poster-col {
+    max-width: 380px;
+  }
+}
+
+@media (max-width: 768px) {
+  .am-hero-subfocus-grid,
+  .am-stats-open-grid,
+  .am-missions-open-list,
+  .am-div-unified-columns,
+  .am-event-open-meta-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .am-div-unified-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .am-div-unified-photos-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .am-div-unified-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .am-div-unified-footer .am-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .am-faq-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+
 
