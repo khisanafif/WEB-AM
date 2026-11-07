@@ -20,6 +20,10 @@ export default function FaqSection({ backendState }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
+  const waTarget =
+    backendState?.donationConfig?.contactPersons?.[0]?.phoneClean ||
+    '6282257081262';
+
   const enrichedFaqs = useMemo(() => {
     const rawList =
       backendState?.faqs && backendState.faqs.length > 0
@@ -141,7 +145,7 @@ export default function FaqSection({ backendState }) {
                     <CheckCircle2 size={14} /> Informasi Resmi Ambulu Mengajar
                   </span>
                   <a
-                    href={`https://wa.me/6282257081262?text=${encodeURIComponent(
+                    href={`https://wa.me/${waTarget}?text=${encodeURIComponent(
                       `Halo Kak, saya ingin bertanya lebih lanjut mengenai: "${item.q}"`
                     )}`}
                     target="_blank"

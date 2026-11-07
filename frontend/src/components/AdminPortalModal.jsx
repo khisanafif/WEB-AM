@@ -1615,9 +1615,36 @@ export default function AdminPortalModal({
                   </div>
 
                   <h4>Daftar Rekening Resmi</h4>
+                  <div className="am-admin-panel-head" style={{ marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--am-text-muted)' }}>
+                      Rekening bank/e-wallet untuk penerimaan donasi resmi:
+                    </span>
+                    <button
+                      type="button"
+                      className="am-btn am-btn-outline am-btn-sm"
+                      onClick={() => {
+                        const current = configDraft.bankAccounts || [];
+                        const next = [
+                          ...current,
+                          {
+                            id: `bank-${Date.now()}`,
+                            bank: 'BSI (Bank Syariah Indonesia)',
+                            number: '1234 5678 90',
+                            numberClean: '1234567890',
+                            holder: 'Ambulu Mengajar',
+                            badgeColor: '#00A39D',
+                            isActive: true,
+                          },
+                        ];
+                        setConfigDraft({ ...configDraft, bankAccounts: next });
+                      }}
+                    >
+                      <Plus size={14} /> Tambah Rekening
+                    </button>
+                  </div>
                   {(configDraft.bankAccounts || []).map((acc, idx) => (
-                    <div key={acc.id || idx} className="am-form-row">
-                      <div className="am-form-group">
+                    <div key={acc.id || idx} className="am-form-row" style={{ alignItems: 'flex-end', marginBottom: '0.75rem' }}>
+                      <div className="am-form-group" style={{ flex: 1 }}>
                         <label>Nama Bank / E-Wallet</label>
                         <input
                           type="text"
@@ -1632,7 +1659,7 @@ export default function AdminPortalModal({
                           }}
                         />
                       </div>
-                      <div className="am-form-group">
+                      <div className="am-form-group" style={{ flex: 1.5 }}>
                         <label>Nomor Rekening & Atas Nama</label>
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
                           <input
@@ -1669,7 +1696,137 @@ export default function AdminPortalModal({
                               });
                             }}
                           />
+                          {(configDraft.bankAccounts || []).length > 1 && (
+                            <button
+                              type="button"
+                              className="am-btn am-btn-danger am-btn-sm"
+                              onClick={() => {
+                                const next = (configDraft.bankAccounts || []).filter((_, i) => i !== idx);
+                                setConfigDraft({ ...configDraft, bankAccounts: next });
+                              }}
+                              title="Hapus Rekening"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          )}
                         </div>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Pengaturan Narahubung WhatsApp Resmi */}
+                  <h4 style={{ marginTop: '1.25rem' }}>Narahubung & Nomor WhatsApp Resmi</h4>
+                  <div className="am-admin-panel-head" style={{ marginBottom: '0.5rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--am-text-muted)' }}>
+                      Nomor WA ini akan dipakai di seluruh website: formulir kontak, tombol konfirmasi donasi, dan FAQ:
+                    </span>
+                    <button
+                      type="button"
+                      className="am-btn am-btn-outline am-btn-sm"
+                      onClick={() => {
+                        const current = configDraft.contactPersons || [];
+                        const next = [
+                          ...current,
+                          {
+                            id: `cp-${Date.now()}`,
+                            name: 'Admin Ambulu Mengajar',
+                            role: 'Narahubung Resmi',
+                            phoneDisplay: '0812-3456-7890',
+                            phoneClean: '6281234567890',
+                            waLink: 'https://wa.me/6281234567890',
+                          },
+                        ];
+                        setConfigDraft({ ...configDraft, contactPersons: next });
+                      }}
+                    >
+                      <Plus size={14} /> Tambah Narahubung
+                    </button>
+                  </div>
+
+                  {(configDraft.contactPersons || []).map((cp, idx) => (
+                    <div key={cp.id || idx} className="am-card" style={{ padding: '0.9rem', marginBottom: '0.75rem', background: 'rgba(0,0,0,0.2)' }}>
+                      <div className="am-form-row">
+                        <div className="am-form-group">
+                          <label>Nama Kontak / Panggilan</label>
+                          <input
+                            type="text"
+                            value={cp.name || ''}
+                            placeholder="Contoh: Kak Melinia"
+                            onChange={(e) => {
+                              const next = [...(configDraft.contactPersons || [])];
+                              next[idx] = { ...cp, name: e.target.value };
+                              setConfigDraft({ ...configDraft, contactPersons: next });
+                            }}
+                          />
+                        </div>
+                        <div className="am-form-group">
+                          <label>Peran / Jabatan</label>
+                          <input
+                            type="text"
+                            value={cp.role || ''}
+                            placeholder="Contoh: Narahubung AMF"
+                            onChange={(e) => {
+                              const next = [...(configDraft.contactPersons || [])];
+                              next[idx] = { ...cp, role: e.target.value };
+                              setConfigDraft({ ...configDraft, contactPersons: next });
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="am-form-row" style={{ alignItems: 'flex-end', marginTop: '0.4rem' }}>
+                        <div className="am-form-group" style={{ flex: 1 }}>
+                          <label>Nomor Tampilan (Format lokal/spasi)</label>
+                          <input
+                            type="text"
+                            value={cp.phoneDisplay || ''}
+                            placeholder="Contoh: 0822-5708-1262"
+                            onChange={(e) => {
+                              const next = [...(configDraft.contactPersons || [])];
+                              const disp = e.target.value;
+                              let clean = disp.replace(/[^0-9]/g, '');
+                              if (clean.startsWith('0')) clean = '62' + clean.slice(1);
+                              next[idx] = {
+                                ...cp,
+                                phoneDisplay: disp,
+                                phoneClean: clean,
+                                waLink: `https://wa.me/${clean}`,
+                              };
+                              setConfigDraft({ ...configDraft, contactPersons: next });
+                            }}
+                          />
+                        </div>
+                        <div className="am-form-group" style={{ flex: 1 }}>
+                          <label>Nomor WhatsApp Bersih (Awalan 62...)</label>
+                          <input
+                            type="text"
+                            value={cp.phoneClean || ''}
+                            placeholder="Contoh: 6282257081262"
+                            onChange={(e) => {
+                              const next = [...(configDraft.contactPersons || [])];
+                              const clean = e.target.value.replace(/[^0-9]/g, '');
+                              next[idx] = {
+                                ...cp,
+                                phoneClean: clean,
+                                waLink: `https://wa.me/${clean}`,
+                              };
+                              setConfigDraft({ ...configDraft, contactPersons: next });
+                            }}
+                          />
+                        </div>
+                        {(configDraft.contactPersons || []).length > 1 && (
+                          <button
+                            type="button"
+                            className="am-btn am-btn-danger am-btn-sm"
+                            onClick={() => {
+                              const next = (configDraft.contactPersons || []).filter((_, i) => i !== idx);
+                              setConfigDraft({ ...configDraft, contactPersons: next });
+                            }}
+                            title="Hapus Narahubung"
+                          >
+                            <Trash2 size={14} /> Hapus
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -1678,8 +1835,9 @@ export default function AdminPortalModal({
                     type="submit"
                     disabled={loading}
                     className="am-btn am-btn-primary am-btn-sm"
+                    style={{ marginTop: '0.5rem' }}
                   >
-                    <Save size={15} /> Simpan Pengaturan Donasi & Rekening
+                    <Save size={15} /> Simpan Pengaturan Donasi, Rekening & Narahubung WA
                   </button>
                 </form>
 
