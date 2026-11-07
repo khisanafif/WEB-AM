@@ -8,10 +8,10 @@ Proyek ini dirancang dengan arsitektur **Frontend React (`c:\WEB AM`)** dan **Ba
 
 1. Buka dashboard [Vercel](https://vercel.com/) -> **Add New Project**.
 2. Pilih repository Git Anda, lalu pada bagian **Root Directory**, pilih folder **`backend`**.
-3. Tambahkan **Environment Variables** berikut di Vercel (opsional, sudah ada nilai *default*):
-   - `ADMIN_USERNAME` = `admin`
-   - `ADMIN_PASSWORD` = `ambulumengajar2026`
-   - `JWT_SECRET` = `ambulu-mengajar-jwt-secret-key-2026`
+3. Tambahkan **Environment Variables** berikut di Vercel (isi dengan nilai rahasia milik Anda sendiri):
+   - `ADMIN_USERNAME` = username admin pilihan Anda
+   - `ADMIN_PASSWORD` = password admin pilihan Anda
+   - `JWT_SECRET` = teks acak panjang
    - `CORS_ORIGIN` = `*` (atau URL domain Frontend Vercel Anda)
 4. Klik **Deploy**.
 5. Setelah selesai, salin URL domain Backend Anda (misal: `https://ambulu-mengajar-backend.vercel.app`).
@@ -28,8 +28,7 @@ Proyek ini dirancang dengan arsitektur **Frontend React (`c:\WEB AM`)** dan **Ba
 
 ---
 
-## 3. Kredensial Login Admin Default
+## 3. Kredensial Login Admin
 
-- **Username**: `admin`
-- **Password**: `ambulumengajar2026`
+Kredensial ditentukan lewat Environment Variable `ADMIN_USERNAME` dan `ADMIN_PASSWORD` di Vercel, dan tidak ditampilkan di website.
 

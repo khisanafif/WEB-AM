@@ -167,7 +167,12 @@ export default function AdminPortalModal({
       if (onBackendStatusChange) onBackendStatusChange(res.mode);
       showToast(`Selamat datang, ${res.user.name}!`);
     } catch (err) {
-      setAuthError(err.message || 'Gagal login sebagai Admin.');
+      const isAuthMsg = /username atau password/i.test(err.message || '');
+      setAuthError(
+        isAuthMsg
+          ? err.message
+          : 'Tidak dapat terhubung ke server. Coba lagi beberapa saat.'
+      );
     } finally {
       setLoading(false);
     }
