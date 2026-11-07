@@ -10,10 +10,9 @@ export function getApiBaseUrl() {
   if (customUrl && customUrl.trim()) {
     return customUrl.trim().replace(/\/+$/, '');
   }
-  return (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace(
-    /\/+$/,
-    ''
-  );
+  return (
+    import.meta.env.VITE_API_URL || 'https://backend-am-ten.vercel.app/api'
+  ).replace(/\/+$/, '');
 }
 
 export function setCustomApiBaseUrl(url) {
