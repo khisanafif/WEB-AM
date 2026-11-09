@@ -534,7 +534,7 @@ export default function AdminPortalModal({
                 onClick={() => setActiveTab('profile')}
               >
                 <Building2 size={14} />
-                <span>1. Profil & Hero</span>
+                <span>1. Profil & Lokasi</span>
               </button>
               <button
                 type="button"
@@ -584,7 +584,7 @@ export default function AdminPortalModal({
                 onClick={() => setActiveTab('media-faq')}
               >
                 <Camera size={14} />
-                <span>6. Galeri, FAQ & Sosmed</span>
+                <span>6. Sosmed, Narahubung & FAQ</span>
               </button>
               <button
                 type="button"
@@ -2032,8 +2032,12 @@ export default function AdminPortalModal({
                   onSubmit={(e) => {
                     e.preventDefault();
                     handleSaveCmsPayload(
-                      { faqs: faqsDraft, socialLinks: socialsDraft },
-                      'Daftar FAQ & Tautan Sosial Media berhasil diperbarui!'
+                      {
+                        faqs: faqsDraft,
+                        socialLinks: socialsDraft,
+                        donationConfig: configDraft,
+                      },
+                      'Daftar FAQ, Sosial Media & Narahubung WhatsApp berhasil diperbarui!'
                     );
                   }}
                   className="am-card am-admin-config-form"
@@ -2131,12 +2135,130 @@ export default function AdminPortalModal({
                     ))}
                   </div>
 
+                  {/* Pengaturan Narahubung WhatsApp di Bawah Sosial Media */}
+                  <h4 style={{ marginTop: '1.5rem' }}>Narahubung & Nomor WhatsApp Resmi (Bawah Sosial Media)</h4>
+                  <div className="am-admin-panel-head" style={{ marginBottom: '0.65rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--am-text-muted)' }}>
+                      Daftar narahubung yang tampil di bawah ikon Sosial Media (Bagian Kontak & Footer), serta tombol pesan WA:
+                    </span>
+                    <button
+                      type="button"
+                      className="am-btn am-btn-outline am-btn-sm"
+                      onClick={() => {
+                        const current = configDraft.contactPersons || [];
+                        const next = [
+                          ...current,
+                          {
+                            id: `cp-${Date.now()}`,
+                            name: 'Narahubung Baru',
+                            role: 'Narahubung Resmi',
+                            phoneDisplay: '+62 812-3456-7890',
+                            phoneClean: '6281234567890',
+                            waLink: 'https://wa.me/6281234567890',
+                          },
+                        ];
+                        setConfigDraft({ ...configDraft, contactPersons: next });
+                      }}
+                    >
+                      <Plus size={14} /> Tambah Narahubung
+                    </button>
+                  </div>
+
+                  {(configDraft.contactPersons || []).map((cp, idx) => (
+                    <div key={cp.id || idx} className="am-card" style={{ padding: '1rem', marginBottom: '0.75rem', background: 'rgba(0,0,0,0.2)' }}>
+                      <div className="am-form-row">
+                        <div className="am-form-group">
+                          <label>Nama Kontak / Panggilan</label>
+                          <input
+                            type="text"
+                            value={cp.name || ''}
+                            placeholder="Contoh: Melinia"
+                            onChange={(e) => {
+                              const next = [...(configDraft.contactPersons || [])];
+                              next[idx] = { ...cp, name: e.target.value };
+                              setConfigDraft({ ...configDraft, contactPersons: next });
+                            }}
+                          />
+                        </div>
+                        <div className="am-form-group">
+                          <label>Peran / Keterangan</label>
+                          <input
+                            type="text"
+                            value={cp.role || ''}
+                            placeholder="Contoh: Narahubung Resmi 1"
+                            onChange={(e) => {
+                              const next = [...(configDraft.contactPersons || [])];
+                              next[idx] = { ...cp, role: e.target.value };
+                              setConfigDraft({ ...configDraft, contactPersons: next });
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="am-form-row" style={{ alignItems: 'flex-end', marginTop: '0.4rem' }}>
+                        <div className="am-form-group" style={{ flex: 1 }}>
+                          <label>Nomor Tampilan (Format lokal/spasi)</label>
+                          <input
+                            type="text"
+                            value={cp.phoneDisplay || ''}
+                            placeholder="Contoh: +62 822-5708-1262"
+                            onChange={(e) => {
+                              const next = [...(configDraft.contactPersons || [])];
+                              const disp = e.target.value;
+                              let clean = disp.replace(/[^0-9]/g, '');
+                              if (clean.startsWith('0')) clean = '62' + clean.slice(1);
+                              next[idx] = {
+                                ...cp,
+                                phoneDisplay: disp,
+                                phoneClean: clean,
+                                waLink: `https://wa.me/${clean}`,
+                              };
+                              setConfigDraft({ ...configDraft, contactPersons: next });
+                            }}
+                          />
+                        </div>
+                        <div className="am-form-group" style={{ flex: 1 }}>
+                          <label>Nomor WhatsApp Bersih (Awalan 62...)</label>
+                          <input
+                            type="text"
+                            value={cp.phoneClean || ''}
+                            placeholder="Contoh: 6282257081262"
+                            onChange={(e) => {
+                              const next = [...(configDraft.contactPersons || [])];
+                              const clean = e.target.value.replace(/[^0-9]/g, '');
+                              next[idx] = {
+                                ...cp,
+                                phoneClean: clean,
+                                waLink: `https://wa.me/${clean}`,
+                              };
+                              setConfigDraft({ ...configDraft, contactPersons: next });
+                            }}
+                          />
+                        </div>
+                        {(configDraft.contactPersons || []).length > 1 && (
+                          <button
+                            type="button"
+                            className="am-btn am-btn-danger am-btn-sm"
+                            onClick={() => {
+                              const next = (configDraft.contactPersons || []).filter((_, i) => i !== idx);
+                              setConfigDraft({ ...configDraft, contactPersons: next });
+                            }}
+                            title="Hapus Narahubung"
+                          >
+                            <Trash2 size={14} /> Hapus
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
                   <button
                     type="submit"
                     disabled={loading}
                     className="am-btn am-btn-primary am-btn-sm"
+                    style={{ marginTop: '0.75rem' }}
                   >
-                    <Save size={15} /> Simpan FAQ & Sosial Media
+                    <Save size={15} /> Simpan FAQ, Sosial Media & Narahubung
                   </button>
                 </form>
               </div>
